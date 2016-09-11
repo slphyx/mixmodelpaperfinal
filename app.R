@@ -149,9 +149,8 @@ resistant population is",
                                   label = "Cut-off half-life value",
                                   value = 5, min = 0, max = 10, step=.5
                       ),
-                      h4("Histogram options"),
-                      selectInput("bStacked2","",choices = c("Stacked histogram","Overlapped histogram")),
-                      selectInput("bDensity2","",choices = c("Percentage", "Count"))
+                      h4("Downloads"),
+                      downloadButton('downloadhistoplot2','Download histogram (works only in browser)')
                )
              )
     ),
@@ -472,6 +471,35 @@ server <- function(input, output) {
   output$histoplot2 <- renderPlot({
     histoplot2R()
   })
+  
+  #for downloading the histoplot2 (plot from the user data)
+  histoplot2fun <- function(){
+    #histoplot2R()
+    nmixdat<-na.omit(mixdatR()[,1])
+
+    plam<-MixModel()$lambdaR
+    pmu<-MixModel()$muR
+    psig<-MixModel()$sigmaR
+    hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
+
+    x <- seq(0.1, max(nmixdat), length=1000)
+    hx <- list()
+
+    #casting multiple lines for different distributions
+    lcolor <- c('blue','red','brown','green','yellow')
+    for(k in 1:length(pmu)){
+      hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
+      lines(x,hx[[k]],col=lcolor[k], lwd=5)
+    }
+    if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3)}
+  }
+  output$downloadhistoplot2 <- downloadHandler(
+    filename = function(){paste('histogram_',Sys.Date(),'.png',sep='')},
+    content = function(file) {
+      png(file) #if(...=="png"){png(file)} else if(...=="pdf"){pdf(file)}
+      histoplot2fun()
+      dev.off()
+    })   
   
   
   # if(length(plam)>1){
