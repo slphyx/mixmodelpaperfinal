@@ -1,6 +1,9 @@
 # 05-tabs.R
 
 library(shiny)
+library(pROC)
+library(mixtools)
+library(MASS)
 
 ui <- fluidPage(
   h2("Identify  artemisinin resistance from parasite clearance half-life data"),
@@ -445,10 +448,7 @@ server <- function(input, output) {
   })
   
   
-  
-  
-  
-  output$histoplot2 <- renderPlot({
+  histoplot2R <- reactive({
     nmixdat<-na.omit(mixdatR()[,1])
     
     plam<-MixModel()$lambdaR
@@ -466,6 +466,11 @@ server <- function(input, output) {
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
     if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3)}
+  })
+  
+  
+  output$histoplot2 <- renderPlot({
+    histoplot2R()
   })
   
   
