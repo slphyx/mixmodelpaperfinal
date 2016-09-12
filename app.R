@@ -15,11 +15,13 @@ ui <- fluidPage(
                                                         "Update on artemisinin and ACT resistance - April 2016"),
                "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
                artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\".",
-               "In the following two examples, the cut-off value will either miss or overdiagnose the artemisinin resistance.",
+               "In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
                "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
                 sensitive and resistant populations each assume unimodal distribution."
                ),
-             p("Reactive buttons to change between Example 1 and Example 2"),
+             #p("Reactive buttons to change between Example 1 and Example 2"),
+             actionButton("eg1","Example 1"),
+             actionButton("eg2","Example 2"),
              hr(),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
@@ -39,11 +41,14 @@ resistant population is",
                strong(textOutput("cutoffO",inline=T)),
                "hours will detect ",
                strong(textOutput("capturedO", inline=T)),
-               "percent of the population as resistant.", "The cut-off value then has to be adjusted.",
-               "Here, we're providing a tool to anlayze the parasite clearance half-life data as 
-               distributions of artemisinin-sensitive and artemisinin-resistant populations. 
-               You can use the model on the next page.",
+               "percent of the population as resistant.", 
+               "The use of cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
                br(),
+              p("Here, we're providing a tool to anlayze the parasite clearance half-life data as 
+               distributions of artemisinin-sensitive and artemisinin-resistant populations. 
+               You can use the model on the next page."),
+              #HTML("<a href='#tab-6760-2'>next page</a>."),
+               #br(),
                p("You can also use the parameters below to change the following plots.")
                #  "In fact ",
                # textOutput("overlayO", inline=T)
@@ -144,7 +149,7 @@ resistant population is",
   )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   #having the parameters reflect on the text description
   set.seed(3)
   output$senmuO <- renderText({
@@ -167,6 +172,26 @@ server <- function(input, output) {
   })
   output$cutoffO <- renderText({
     as.character(input$cutoff)
+  })
+  
+  ####updateSliderInput####
+  observeEvent(input$eg1,{
+    updateSliderInput(session, "senmu", value=3)
+    updateSliderInput(session, "sensd", value=1.22)
+    updateSliderInput(session, "resmu", value=6)
+    updateSliderInput(session, "ressd", value=1.22)
+    updateSliderInput(session, "prop_resist", value=11)
+    updateNumericInput(session, "nn", value=500)
+    updateSliderInput(session, "cutoff", value=5)
+  })
+  observeEvent(input$eg2,{
+    updateSliderInput(session, "senmu", value=3.5)
+    updateSliderInput(session, "sensd", value=1.35)
+    updateSliderInput(session, "resmu", value=6)
+    updateSliderInput(session, "ressd", value=1.22)
+    updateSliderInput(session, "prop_resist", value=2)
+    updateNumericInput(session, "nn", value=1000)
+    updateSliderInput(session, "cutoff", value=5)
   })
   
   ####the functions for plotting####
@@ -226,7 +251,7 @@ server <- function(input, output) {
     overlay <- paste(true_res," truly resistant, ", fal_res, " falsely resistant \n",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
     #overlay2 <- paste(true_res," truly resistant, ", fal_res, " falsely resistant ",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
     #for output in the text #comment out the line above and below to get them back
-    output$capturedO <- renderText(as.character(sum(genData()>=input$cutoff)/length(genData())*100))
+    output$capturedO <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
     #output$overlayO <- renderText(overlay2)
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
@@ -461,7 +486,7 @@ server <- function(input, output) {
     cbind(genDatamm(),c(rep(0,length(sen_popRmm())),rep(1,length(res_popRmm()))))
   })
   output$ROC2 <- renderPlot({
-    if(length(MixModelResult$Holder$muR)<=2)
+    if(length(MixModelResult$Holder$muR)==2)
       { #plot ROC only if the number of distributions is <=2!
       popDF <- genData.DFmm()
       
@@ -479,9 +504,17 @@ server <- function(input, output) {
       points((1-FPR),TPR, col="red", pch=19)
       text(.5,.5,overlay, col="red")
     }
-    else {
+    else if(length(MixModelResult$Holder$muR)==1){
+      frame()
+      title(main="ROC curve can't be plotted \n since the model predicts a single distribution!")
+    }
+    else if(length(MixModelResult$Holder$muR)>2){
       frame()
       title(main="ROC curve can't be plotted \n since the number of distributions is more than 2!")
+    }
+    else {
+      frame()
+      title(main="ROC curve can't be plotted \n either because there's no data or \n the data is in the wrong format!")
     }
   })
 }
