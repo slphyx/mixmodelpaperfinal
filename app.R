@@ -319,8 +319,7 @@ server <- function(input, output) {
   ###For the users data, run the mixture model and draw the histogram####
   #######################################################################
   mixdatR <- reactive({
-    inFile <- input$file
-    read.csv(inFile$datapath)
+    read.csv(input$file$datapath)
   })
   
   MixModel <- reactive({
