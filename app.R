@@ -220,7 +220,6 @@ server <- function(input, output) {
   
   
   output$histoplot1 <- renderPlot({
-    #nmixdat<-na.omit(mixdatR()[,1])
     #for now it only works for 2 distributions (sensitive and resistant distributions)
     
     plam<-c(1-input$prop_resist,input$prop_resist)
@@ -399,6 +398,13 @@ server <- function(input, output) {
     #Make the table containing the probabilities of each patient belonging to each component distribution. 
     
   })
+  #pmu = c(1.392575, 1.947629),
+  MixModelResult <- reactiveValues(Holder = list(pmu = c(0.6931472, 2.079442),
+                                              psig = c(0.4046619, 0.2105479),
+                                              plambda = c(0.231683825089153 ,0.768316174910847)))
+  observeEvent(MixModel(),{
+  MixModelResult$Holder <- MixModel()
+  })
   
   ############################################################
   ###Following has been put out of the previous renderPlot####
@@ -422,7 +428,7 @@ server <- function(input, output) {
     each patient belonging to each of the component distributions depicted in the graph."})
   
   output$geometric_means_and_proportions <- renderPrint({
-    mm <- MixModel()
+    mm <- MixModelResult$Holder
     j <- length(mm$muR)
     cat("The model predicts ", j, " component geometric mean half lives (hours):",
         
@@ -445,13 +451,17 @@ server <- function(input, output) {
     }
   })
   
+  mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
+  observeEvent(mixdatR(),{
+    mixdatRHolder$Holder <- mixdatR()
+  })
   
   histoplot2R <- reactive({
-    nmixdat<-na.omit(mixdatR()[,1])
+    nmixdat<-na.omit(mixdatRHolder$Holder[,1])
     
-    plam<-MixModel()$lambdaR
-    pmu<-MixModel()$muR
-    psig<-MixModel()$sigmaR
+    plam<-MixModelResult$Holder$lambdaR
+    pmu<-MixModelResult$Holder$muR
+    psig<-MixModelResult$Holder$sigmaR
     hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
     
     x <- seq(0.1, max(nmixdat), length=1000)
@@ -474,11 +484,11 @@ server <- function(input, output) {
   #for downloading the histoplot2 (plot from the user data)
   histoplot2fun <- function(){
     #histoplot2R()
-    nmixdat<-na.omit(mixdatR()[,1])
+    nmixdat<-na.omit(mixdatRHolder$Holder[,1])
 
-    plam<-MixModel()$lambdaR
-    pmu<-MixModel()$muR
-    psig<-MixModel()$sigmaR
+    plam<-MixModelResult$Holder$lambdaR
+    pmu<-MixModelResult$Holder$muR
+    psig<-MixModelResult$Holder$sigmaR
     hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
 
     x <- seq(0.1, max(nmixdat), length=1000)
@@ -513,21 +523,21 @@ server <- function(input, output) {
   # spreads <- reactive(na.omit(output.sigma))
   # proportions <- reactive(na.omit(output.lambda))
   # nn.mixdat <- reactive(length(nb))#(nrow(mixdat))
-  proportionsmm <- reactive({MixModel()$lambdaR})
-  nn.mixdatmm <- reactive({nrow(mixdatR())})
+  proportionsmm <- reactive({MixModelResult$Holder$lambdaR})
+  nn.mixdatmm <- reactive({nrow(mixdatRHolder$Holder)})
   #################################
   ####plots from the cutoff app####
   ####the functions for plotting###
   #################################
   
-  senmuRmm <- reactive({MixModel()$muR[1]})
-  sensdRmm <- reactive({MixModel()$sigmaR[1]})    
-  resmuRmm <- reactive({MixModel()$muR[2]})
-  ressdRmm <- reactive({MixModel()$sigmaR[2]})
+  senmuRmm <- reactive({MixModelResult$Holder$muR[1]})
+  sensdRmm <- reactive({MixModelResult$Holder$sigmaR[1]})    
+  resmuRmm <- reactive({MixModelResult$Holder$muR[2]})
+  ressdRmm <- reactive({MixModelResult$Holder$sigmaR[2]})
   
   ###test####
-  output$genDataOut <- renderPrint({as.character(c(nn.mixdatmm(),MixModel()$muR,proportionsmm(),senmuRmm(),sensdRmm()))})
-  #output$genDataOut <- renderPrint({class(na.omit(mixdatR()))})
+  output$genDataOut <- renderPrint({as.character(c(nn.mixdatmm(),MixModelResult$Holder$muR,proportionsmm(),senmuRmm(),sensdRmm()))})
+  #output$genDataOut <- renderPrint({class(na.omit(mixdatRHolder$Holder))})
   # output$densityLine <- renderPlot({
   #   
   # })
@@ -550,7 +560,7 @@ server <- function(input, output) {
     cbind(genDatamm(),c(rep(0,length(sen_popRmm())),rep(1,length(res_popRmm()))))
   })
   output$ROC2 <- renderPlot({
-    if(length(MixModel()$muR)<=2)
+    if(length(MixModelResult$Holder$muR)<=2)
       { #plot ROC only if the number of distributions is <=2!
       popDF <- genData.DFmm()
       
