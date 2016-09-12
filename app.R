@@ -318,7 +318,7 @@ server <- function(input, output) {
   ###For the users data, run the mixture model and draw the histogram####
   #######################################################################
   mixdatR <- reactive({
-    read.csv(input$file$datapath)
+    read.csv(input$file$datapath)[,1]
   })
   
   MixModel <- reactive({
@@ -451,13 +451,13 @@ server <- function(input, output) {
     }
   })
   
-  mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
+  mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F)[,1])
   observeEvent(mixdatR(),{
     mixdatRHolder$Holder <- mixdatR()
   })
   
   histoplot2R <- reactive({
-    nmixdat<-na.omit(mixdatRHolder$Holder[,1])
+    nmixdat<-na.omit(mixdatRHolder$Holder)
     
     plam<-MixModelResult$Holder$lambdaR
     pmu<-MixModelResult$Holder$muR
@@ -484,7 +484,7 @@ server <- function(input, output) {
   #for downloading the histoplot2 (plot from the user data)
   histoplot2fun <- function(){
     #histoplot2R()
-    nmixdat<-na.omit(mixdatRHolder$Holder[,1])
+    nmixdat<-na.omit(mixdatRHolder$Holder)
 
     plam<-MixModelResult$Holder$lambdaR
     pmu<-MixModelResult$Holder$muR
