@@ -23,21 +23,30 @@ ui <- fluidPage(
              hr(),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
-                "individuals, when the sensitive population has a geomatric half-life mean of : ", 
-               strong(textOutput("senmuO", inline=TRUE)), 
+                "individuals, when the sensitive population has a geomatric half-life mean of ", 
+               strong(textOutput("senmuO", inline=T)), 
                "hours with the standard deviation of ",
                strong(textOutput("sensdO",inline=T)),
-               "and the resistant population has a geomatric half-life mean of : ",
+               "hours and the resistant population has a geomatric half-life mean of ",
                strong(textOutput("resmuO",inline=T)),
                "hours with the standard deviation of ",
                strong(textOutput("ressdO",inline=T)),
-               "then the distribution will look like the following plot. If the proportion of 
+               "hours then the distribution will look like the following plot. If the percentage of 
 resistant population is",
                strong(textOutput("prop_resistO",inline=T)),
                
                ", the cutoff value of ",
                strong(textOutput("cutoffO",inline=T)),
-               "will diagnose"
+               "hours will detect ",
+               strong(textOutput("capturedO", inline=T)),
+               "percent of the population as resistant.", "The cut-off value then has to be adjusted.",
+               "Here, we're providing a tool to anlayze the parasite clearance half-life data as 
+               distributions of artemisinin-sensitive and artemisinin-resistant populations. 
+               You can use the model on the next page.",
+               br(),
+               p("You can also use the parameters below to change the following plots.")
+               #  "In fact ",
+               # textOutput("overlayO", inline=T)
              ),
 
              fluidRow(
@@ -55,33 +64,33 @@ resistant population is",
                column(4,
                       h3("Sensitive Distribution"),
                       sliderInput(inputId = "senmu",
-                                  label = "Mean half-life",
+                                  label = "Mean half-life (hours)",
                                   value = 3, min = 1, max = 6.5, step = .5
                       ),
                       sliderInput(inputId = "sensd",
-                                  label = "SD",
-                                  value = 1.45, min = 1, max = 2.1
+                                  label = "SD (hours)",
+                                  value = 1.26, min = 1, max = 2.1
                       )
                ),
                column(4,
                       h3("Resistant Distribution"),
                       sliderInput(inputId = "resmu",
-                                  label = "Mean half-life",
-                                  value = 6.5, min = 5, max = 10, step = .5
+                                  label = "Mean half-life (hours)",
+                                  value = 6, min = 5, max = 10, step = .5
                       ),
                       sliderInput(inputId = "ressd",
-                                  label = "SD",
+                                  label = "SD (hours)",
                                   value = 1.22, min = 1, max = 2.1
                       ),
                       sliderInput(inputId = "prop_resist",
-                                  label = "Proportion resistant",
-                                  value = .1, min = 0, max = 1
+                                  label = "% of resistant population",
+                                  value = 10, min = 0, max = 100
                       )
                ),
                column(4,
                       numericInput(inputId = "nn",
                                    label = "Sample Size:",
-                                   value = 200
+                                   value = 500
                       ),
                       checkboxInput(inputId = "showcutoff",
                                     label = "Show cutoff line in the histogram",
@@ -137,6 +146,7 @@ resistant population is",
 
 server <- function(input, output) {
   #having the parameters reflect on the text description
+  set.seed(3)
   output$senmuO <- renderText({
     as.character(input$senmu)
   })
@@ -150,7 +160,7 @@ server <- function(input, output) {
     as.character(input$ressd)
   })
   output$prop_resistO <- renderText({
-    as.character(input$prop_resist)
+    as.character((input$prop_resist))
   })
   output$nnO <- renderText({
     as.character(input$nn)
@@ -165,8 +175,8 @@ server <- function(input, output) {
   resmuR <- reactive({log(input$resmu)})
   ressdR <- reactive({log(input$ressd)})
   
-  sen_popR <- reactive({rlnorm(input$nn*(1-input$prop_resist),senmuR(),sensdR())})
-  res_popR <- reactive({rlnorm(input$nn*input$prop_resist,resmuR(),ressdR())})
+  sen_popR <- reactive({rlnorm(input$nn*(1-(input$prop_resist/100)),senmuR(),sensdR())})
+  res_popR <- reactive({rlnorm(input$nn*(input$prop_resist/100),resmuR(),ressdR())})
   
   
   genData <- reactive({
@@ -181,11 +191,11 @@ server <- function(input, output) {
   output$histoplot1 <- renderPlot({
     #for now it only works for 2 distributions (sensitive and resistant distributions)
     
-    plam<-c(1-input$prop_resist,input$prop_resist)
+    plam<-c(1-(input$prop_resist/100),(input$prop_resist/100))
     pmu<-c(senmuR(),resmuR())
     psig<-c(sensdR(),ressdR())
     
-    hist(genData(),freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
+    hist(genData(),freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from the parameters"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
     
     x <- seq(0.1, max(genData()), length=1000)
     hx <- list()
@@ -214,13 +224,16 @@ server <- function(input, output) {
     fal_sen <- sum(res_popR()<input$cutoff)
     true_sen <- sum(sen_popR()<input$cutoff)
     overlay <- paste(true_res," truly resistant, ", fal_res, " falsely resistant \n",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
-    
+    #overlay2 <- paste(true_res," truly resistant, ", fal_res, " falsely resistant ",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
+    #for output in the text #comment out the line above and below to get them back
+    output$capturedO <- renderText(as.character(sum(genData()>=input$cutoff)/length(genData())*100))
+    #output$overlayO <- renderText(overlay2)
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
     points((1-FPR),TPR, col="red", pch=19)
     text(.5,.5,overlay, col="red")
   })
-  
+
   #######################################################################
   ###For the users data, run the mixture model and draw the histogram####
   #######################################################################
@@ -362,7 +375,7 @@ server <- function(input, output) {
     plam<-MixModelResult$Holder$lambdaR
     pmu<-MixModelResult$Holder$muR
     psig<-MixModelResult$Holder$sigmaR
-    hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
+    hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from the data input"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
     
     x <- seq(0.1, max(nmixdat), length=1000)
     hx <- list()
@@ -389,7 +402,7 @@ server <- function(input, output) {
     plam<-MixModelResult$Holder$lambdaR
     pmu<-MixModelResult$Holder$muR
     psig<-MixModelResult$Holder$sigmaR
-    hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from your data"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
+    hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from the data input"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
 
     x <- seq(0.1, max(nmixdat), length=1000)
     hx <- list()
