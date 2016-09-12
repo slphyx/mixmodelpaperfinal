@@ -4,8 +4,10 @@ library(shiny)
 library(pROC)
 library(mixtools)
 library(MASS)
+library(shinythemes)
 
 ui <- fluidPage(
+  theme = shinytheme("journal"),
   h2("Identify  artemisinin resistance from parasite clearance half-life data"),
   #title = "Random generator",
   tabsetPanel(              
@@ -40,6 +42,7 @@ resistant population is",
                )
                
              ),
+             wellPanel(
              fluidRow(
                column(4,
                       h3("Sensitive Distribution"),
@@ -67,7 +70,7 @@ resistant population is",
                                   value = .1, min = 0, max = 1
                       )
                ),
-               column(3,
+               column(4,
                       numericInput(inputId = "nn",
                                    label = "Sample Size:",
                                    value = 200
@@ -79,18 +82,15 @@ resistant population is",
                       sliderInput(inputId = "cutoff",
                                   label = "Cut-off half-life value",
                                   value = 5, min = 0, max = 10, step=.5
-                      ),
-                      h4("Histogram options"),
-                      selectInput("bStacked","",choices = c("Stacked histogram","Overlapped histogram")),
-                      selectInput("bDensity","",choices = c("Percentage", "Count"))
+                                  )
+               )
                )
              ),
              br(),
-             p("This is the end."),
+             p("This is the end of part 1.")
              
              ###test####
-             #p(textOutput("genDataOut")),
-             p(textOutput("genDataOut"))
+             #p(textOutput("genDataOut"))
              
              
     ),
@@ -99,7 +99,7 @@ resistant population is",
              ###Portions from MixModel###
              ############################
              
-             fileInput(inputId = "file", label = "Select your input file: (simulated_cloneHLdata_SMRUbyyear.csv in this case)"),
+             fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default)"),
              fluidRow(
                column(5,
                       plotOutput(outputId = "histoplot2")
@@ -109,38 +109,9 @@ resistant population is",
                )
                
              ),
+             wellPanel(
              fluidRow(
                column(4,
-                      h3("Sensitive Distribution"),
-                      sliderInput(inputId = "senmu2",
-                                  label = "Mean half-life",
-                                  value = 3, min = 1, max = 6.5, step = .5
-                      ),
-                      sliderInput(inputId = "sensd2",
-                                  label = "SD",
-                                  value = 1.45, min = 1, max = 2.1
-                      )
-               ),
-               column(4,
-                      h3("Resistant Distribution"),
-                      sliderInput(inputId = "resmu2",
-                                  label = "Mean half-life",
-                                  value = 6.5, min = 5, max = 10, step = .5
-                      ),
-                      sliderInput(inputId = "ressd2",
-                                  label = "SD",
-                                  value = 1.22, min = 1, max = 2.1
-                      ),
-                      sliderInput(inputId = "prop_resist2",
-                                  label = "Proportion resistant",
-                                  value = .1, min = 0, max = 1
-                      )
-               ),
-               column(3,
-                      numericInput(inputId = "nn2",
-                                   label = "Sample Size:",
-                                   value = 200
-                      ),
                       checkboxInput(inputId = "showcutoff2",
                                     label = "Show cutoff line in the histogram",
                                     value = TRUE
@@ -150,33 +121,15 @@ resistant population is",
                                   value = 5, min = 0, max = 10, step=.5
                       ),
                       h4("Downloads"),
-                      downloadButton('downloadhistoplot2','Download histogram (works only in browser)')
+                      downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
                )
              )
-    ),
-    tabPanel(title = "Chi Squared data",
-             plotOutput("chisq"),
-             actionButton("rechisq", "Resample")
+             )
     )
   )
 )
 
 server <- function(input, output) {
-  
-  rv <- reactiveValues(
-    norm = rnorm(500), 
-    unif = runif(500),
-    chisq = rchisq(500, 2))
-  
-  
-  observeEvent(input$rechisq, { rv$chisq <- rchisq(500, 2) })
-  
-  
-  output$chisq <- renderPlot({
-    hist(rv$chisq, breaks = 30, col = "grey", border = "white",
-         main = "500 random draws from a Chi Square distribution with two degree of freedom")
-  })
-  
   #having the parameters reflect on the text description
   output$senmuO <- renderText({
     as.character(input$senmu)
@@ -237,7 +190,7 @@ server <- function(input, output) {
       hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
-    if(input$showcutoff){abline(v=input$cutoff, col='red', lwd=3)}
+    if(input$showcutoff){abline(v=input$cutoff, col='red', lwd=3, lty=4)}
     
   })
   
@@ -399,9 +352,9 @@ server <- function(input, output) {
     
   })
   #pmu = c(1.392575, 1.947629),
-  MixModelResult <- reactiveValues(Holder = list(muR = c(0.6931472, 2.079442),
+  MixModelResult <- reactiveValues(Holder = list(muR = c(0.6931472, 1.791759),
                                               sigmaR = c(0.4046619, 0.2105479),
-                                              lambdaR = c(0.231683825089153 ,0.768316174910847)))
+                                              lambdaR = c(0.768316174910847, 0.231683825089153)))
   observeEvent(input$file,{
   MixModelResult$Holder <- MixModel()
   })
@@ -473,7 +426,7 @@ server <- function(input, output) {
       hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
-    if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3)}
+    if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3, lty=4)}
   })
   
   
@@ -500,7 +453,7 @@ server <- function(input, output) {
       hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
-    if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3)}
+    if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3, lty=4)}
   }
   output$downloadhistoplot2 <- downloadHandler(
     filename = function(){paste('histogram_',Sys.Date(),'.png',sep='')},
