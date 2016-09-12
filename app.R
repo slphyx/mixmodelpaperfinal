@@ -399,10 +399,10 @@ server <- function(input, output) {
     
   })
   #pmu = c(1.392575, 1.947629),
-  MixModelResult <- reactiveValues(Holder = list(pmu = c(0.6931472, 2.079442),
-                                              psig = c(0.4046619, 0.2105479),
-                                              plambda = c(0.231683825089153 ,0.768316174910847)))
-  observeEvent(MixModel(),{
+  MixModelResult <- reactiveValues(Holder = list(muR = c(0.6931472, 2.079442),
+                                              sigmaR = c(0.4046619, 0.2105479),
+                                              lambdaR = c(0.231683825089153 ,0.768316174910847)))
+  observeEvent(input$file,{
   MixModelResult$Holder <- MixModel()
   })
   
@@ -452,7 +452,7 @@ server <- function(input, output) {
   })
   
   mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
-  observeEvent(mixdatR(),{
+  observeEvent(input$file,{
     mixdatRHolder$Holder <- mixdatR()
   })
   
@@ -536,7 +536,8 @@ server <- function(input, output) {
   ressdRmm <- reactive({MixModelResult$Holder$sigmaR[2]})
   
   ###test####
-  output$genDataOut <- renderPrint({as.character(c(nn.mixdatmm(),MixModelResult$Holder$muR,proportionsmm(),senmuRmm(),sensdRmm()))})
+  output$genDataOut <- renderPrint({as.character(names(MixModelResult$Holder))})
+  #output$genDataOut <- renderPrint({as.character(c(nn.mixdatmm(),MixModelResult$Holder$muR,proportionsmm(),senmuRmm(),sensdRmm()))})
   #output$genDataOut <- renderPrint({class(na.omit(mixdatRHolder$Holder))})
   # output$densityLine <- renderPlot({
   #   
