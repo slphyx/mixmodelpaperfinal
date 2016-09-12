@@ -318,13 +318,13 @@ server <- function(input, output) {
   #######################################################################
   ###For the users data, run the mixture model and draw the histogram####
   #######################################################################
-  mixdatR <- reactiveValues(data=read.csv("simulated_data_for_input.csv", header=F))
-  observeEvent(input$file,{
-    mixdatR$data <- read.csv(input$file$datapath, header=F) #more on this later, whether or not to use read.csv
+  mixdatR <- reactive({
+    inFile <- input$file
+    read.csv(inFile$datapath)
   })
   
   MixModel <- reactive({
-    mixdat <- mixdatR$data
+    mixdat <- mixdatR()
     
     N<-ncol(mixdat)
     M <- 5
@@ -448,7 +448,7 @@ server <- function(input, output) {
   
   
   histoplot2R <- reactive({
-    nmixdat<-na.omit(mixdatR$data[,1])
+    nmixdat<-na.omit(mixdatR()[,1])
     
     plam<-MixModel()$lambdaR
     pmu<-MixModel()$muR
@@ -475,7 +475,7 @@ server <- function(input, output) {
   #for downloading the histoplot2 (plot from the user data)
   histoplot2fun <- function(){
     #histoplot2R()
-    nmixdat<-na.omit(mixdatR$data[,1])
+    nmixdat<-na.omit(mixdatR()[,1])
 
     plam<-MixModel()$lambdaR
     pmu<-MixModel()$muR
@@ -515,7 +515,7 @@ server <- function(input, output) {
   # proportions <- reactive(na.omit(output.lambda))
   # nn.mixdat <- reactive(length(nb))#(nrow(mixdat))
   proportionsmm <- reactive({MixModel()$lambdaR})
-  nn.mixdatmm <- reactive({nrow(mixdatR$data)})
+  nn.mixdatmm <- reactive({nrow(mixdatR())})
   #################################
   ####plots from the cutoff app####
   ####the functions for plotting###
@@ -528,7 +528,7 @@ server <- function(input, output) {
   
   ###test####
   output$genDataOut <- renderPrint({as.character(c(nn.mixdatmm(),MixModel()$muR,proportionsmm(),senmuRmm(),sensdRmm()))})
-  #output$genDataOut <- renderPrint({class(na.omit(mixdatR$data()))})
+  #output$genDataOut <- renderPrint({class(na.omit(mixdatR()))})
   # output$densityLine <- renderPlot({
   #   
   # })
