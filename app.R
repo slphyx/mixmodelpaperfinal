@@ -1,5 +1,3 @@
-# 05-tabs.R
-
 library(shiny)
 library(pROC)
 library(mixtools)
@@ -12,23 +10,34 @@ ui <- fluidPage(
   
   tabsetPanel(              
     tabPanel(title = "Introduction",
-             p("Assuming that the parasite clearance half-lives are in log-normal distribution, and that the values for 
-sensitive and resistant populations each assume unimodal distribution. When the sensitive population has 
-a geomatric half-life mean of : ", 
+             br(),
+             p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
+                                                        "Update on artemisinin and ACT resistance - April 2016"),
+               "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
+               artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\".",
+               "In the following two examples, the cut-off value will either miss or overdiagnose the artemisinin resistance.",
+               "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
+                sensitive and resistant populations each assume unimodal distribution."
+               ),
+             p("Reactive buttons to change between Example 1 and Example 2"),
+             hr(),
+             p("In a sample of ",
+               strong(textOutput("nnO",inline=T)),
+                "individuals, when the sensitive population has a geomatric half-life mean of : ", 
                strong(textOutput("senmuO", inline=TRUE)), 
-               "and the standard deviation of ",
+               "hours with the standard deviation of ",
                strong(textOutput("sensdO",inline=T)),
                "and the resistant population has a geomatric half-life mean of : ",
                strong(textOutput("resmuO",inline=T)),
-               "and the standard deviation of ",
+               "hours with the standard deviation of ",
                strong(textOutput("ressdO",inline=T)),
-               "then the distribution will look like the following. The proportion of 
+               "then the distribution will look like the following plot. If the proportion of 
 resistant population is",
                strong(textOutput("prop_resistO",inline=T)),
-               ". The sample size is",
-               strong(textOutput("nnO",inline=T)),
-               ". The cutoff value is ",
-               strong(textOutput("cutoffO",inline=T))
+               
+               ", the cutoff value of ",
+               strong(textOutput("cutoffO",inline=T)),
+               "will diagnose"
              ),
 
              fluidRow(
