@@ -3,12 +3,14 @@ library(pROC)
 library(mixtools)
 library(MASS)
 library(shinythemes)
+library(shinydashboard)
 
 ui <- fluidPage(
   theme = shinytheme("journal"),
   h2("Identify  artemisinin resistance from parasite clearance half-life data"),
   
-  tabsetPanel(              
+  tabsetPanel(
+    id="panels",
     tabPanel(title = "Introduction",
              br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
@@ -18,14 +20,17 @@ ui <- fluidPage(
                "In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
                "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
                 sensitive and resistant populations each assume unimodal distribution."
-               ),
+             ),
              #p("Reactive buttons to change between Example 1 and Example 2"),
+             p("Click on each button to populate the respective example.",
+             "You can also use the parameters to change the outputs."),
              actionButton("eg1","Example 1"),
              actionButton("eg2","Example 2"),
              hr(),
+             h5("Example"),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
-                "individuals, when the sensitive population has a geomatric half-life mean of ", 
+               "individuals, when the sensitive population has a geomatric half-life mean of ", 
                strong(textOutput("senmuO", inline=T)), 
                "hours with the standard deviation of ",
                strong(textOutput("sensdO",inline=T)),
@@ -44,16 +49,17 @@ resistant population is",
                "percent of the population as resistant.", 
                "The use of cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
                br(),
-              p("Here, we're providing a tool to anlayze the parasite clearance half-life data as 
+               p("Here, we're providing a tool to anlayze the parasite clearance half-life data as 
                distributions of artemisinin-sensitive and artemisinin-resistant populations. 
-               You can use the model on the next page."),
-              #HTML("<a href='#tab-6760-2'>next page</a>."),
+               Please go to the", actionLink("link_to_MMpage", "next page"), "to use it.")
+               #HTML("<a href='#histoplot1'>next page</a>."),
+               
                #br(),
-               p("You can also use the parameters below to change the following plots.")
+               #p("You can also use the parameters below to change the following plots.")
                #  "In fact ",
                # textOutput("overlayO", inline=T)
              ),
-
+             
              fluidRow(
                column(5,
                       #plotOutput(outputId = "densityplot")
@@ -65,47 +71,47 @@ resistant population is",
                
              ),
              wellPanel(
-             fluidRow(
-               column(4,
-                      h3("Sensitive Distribution"),
-                      sliderInput(inputId = "senmu",
-                                  label = "Mean half-life (hours)",
-                                  value = 3, min = 1, max = 6.5, step = .5
-                      ),
-                      sliderInput(inputId = "sensd",
-                                  label = "SD (hours)",
-                                  value = 1.26, min = 1, max = 2.1
-                      )
-               ),
-               column(4,
-                      h3("Resistant Distribution"),
-                      sliderInput(inputId = "resmu",
-                                  label = "Mean half-life (hours)",
-                                  value = 6, min = 5, max = 10, step = .5
-                      ),
-                      sliderInput(inputId = "ressd",
-                                  label = "SD (hours)",
-                                  value = 1.22, min = 1, max = 2.1
-                      ),
-                      sliderInput(inputId = "prop_resist",
-                                  label = "% of resistant population",
-                                  value = 10, min = 0, max = 100
-                      )
-               ),
-               column(4,
-                      numericInput(inputId = "nn",
-                                   label = "Sample Size:",
-                                   value = 500
-                      ),
-                      checkboxInput(inputId = "showcutoff",
-                                    label = "Show cutoff line in the histogram",
-                                    value = TRUE
-                      ),
-                      sliderInput(inputId = "cutoff",
-                                  label = "Cut-off half-life value",
-                                  value = 5, min = 0, max = 10, step=.5
-                                  )
-               )
+               fluidRow(
+                 column(4,
+                        h3("Sensitive Distribution"),
+                        sliderInput(inputId = "senmu",
+                                    label = "Mean half-life (hours)",
+                                    value = 3, min = 1, max = 6.5, step = .5
+                        ),
+                        sliderInput(inputId = "sensd",
+                                    label = "SD (hours)",
+                                    value = 1.26, min = 1, max = 2.1
+                        )
+                 ),
+                 column(4,
+                        h3("Resistant Distribution"),
+                        sliderInput(inputId = "resmu",
+                                    label = "Mean half-life (hours)",
+                                    value = 6, min = 5, max = 10, step = .5
+                        ),
+                        sliderInput(inputId = "ressd",
+                                    label = "SD (hours)",
+                                    value = 1.22, min = 1, max = 2.1
+                        ),
+                        sliderInput(inputId = "prop_resist",
+                                    label = "% of resistant population",
+                                    value = 10, min = 0, max = 100
+                        )
+                 ),
+                 column(4,
+                        numericInput(inputId = "nn",
+                                     label = "Sample Size:",
+                                     value = 500
+                        ),
+                        checkboxInput(inputId = "showcutoff",
+                                      label = "Show cutoff line in the histogram",
+                                      value = TRUE
+                        ),
+                        sliderInput(inputId = "cutoff",
+                                    label = "Cut-off half-life value",
+                                    value = 5, min = 0, max = 10, step=.5
+                        )
+                 )
                )
              ),
              br(),
@@ -130,20 +136,20 @@ resistant population is",
                
              ),
              wellPanel(
-             fluidRow(
-               column(4,
-                      checkboxInput(inputId = "showcutoff2",
-                                    label = "Show cutoff line in the histogram",
-                                    value = TRUE
-                      ),
-                      sliderInput(inputId = "cutoff2",
-                                  label = "Cut-off half-life value",
-                                  value = 5, min = 0, max = 10, step=.5
-                      ),
-                      h4("Downloads"),
-                      downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
+               fluidRow(
+                 column(4,
+                        checkboxInput(inputId = "showcutoff2",
+                                      label = "Show cutoff line in the histogram",
+                                      value = TRUE
+                        ),
+                        sliderInput(inputId = "cutoff2",
+                                    label = "Cut-off half-life value",
+                                    value = 5, min = 0, max = 10, step=.5
+                        ),
+                        h4("Downloads"),
+                        downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
+                 )
                )
-             )
              )
     )
   )
@@ -192,6 +198,12 @@ server <- function(input, output, session) {
     updateSliderInput(session, "prop_resist", value=2)
     updateNumericInput(session, "nn", value=1000)
     updateSliderInput(session, "cutoff", value=5)
+  })
+  
+  #link to next page
+  observeEvent(input$link_to_MMpage,{
+    newvalue <- "Use the Mixture Model"
+    updateTabItems(session, "panels", newvalue)
   })
   
   ####the functions for plotting####
@@ -258,7 +270,7 @@ server <- function(input, output, session) {
     points((1-FPR),TPR, col="red", pch=19)
     text(.5,.5,overlay, col="red")
   })
-
+  
   #######################################################################
   ###For the users data, run the mixture model and draw the histogram####
   #######################################################################
@@ -338,10 +350,10 @@ server <- function(input, output, session) {
   })
   #pmu = c(1.392575, 1.947629),
   MixModelResult <- reactiveValues(Holder = list(muR = c(0.6931472, 1.791759),
-                                              sigmaR = c(0.4046619, 0.2105479),
-                                              lambdaR = c(0.768316174910847, 0.231683825089153)))
+                                                 sigmaR = c(0.4046619, 0.2105479),
+                                                 lambdaR = c(0.768316174910847, 0.231683825089153)))
   observeEvent(input$file,{
-  MixModelResult$Holder <- MixModel()
+    MixModelResult$Holder <- MixModel()
   })
   
   ############################################################
@@ -423,15 +435,15 @@ server <- function(input, output, session) {
   histoplot2fun <- function(){
     #histoplot2R()
     nmixdat<-na.omit(mixdatRHolder$Holder[,1])
-
+    
     plam<-MixModelResult$Holder$lambdaR
     pmu<-MixModelResult$Holder$muR
     psig<-MixModelResult$Holder$sigmaR
     hist(nmixdat,freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from the data input"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
-
+    
     x <- seq(0.1, max(nmixdat), length=1000)
     hx <- list()
-
+    
     #casting multiple lines for different distributions
     lcolor <- c('blue','red','brown','green','yellow')
     for(k in 1:length(pmu)){
@@ -487,7 +499,7 @@ server <- function(input, output, session) {
   })
   output$ROC2 <- renderPlot({
     if(length(MixModelResult$Holder$muR)==2)
-      { #plot ROC only if the number of distributions is <=2!
+    { #plot ROC only if the number of distributions is <=2!
       popDF <- genData.DFmm()
       
       TPR <- sum(res_popRmm()>=input$cutoff2)/length(res_popRmm())
