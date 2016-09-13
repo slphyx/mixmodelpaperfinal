@@ -23,7 +23,7 @@ ui <- fluidPage(
              ),
              #p("Reactive buttons to change between Example 1 and Example 2"),
              p("Click on each button to populate the respective example.",
-             "You can also use the parameters to change the outputs."),
+               "You can also use the parameters to change the outputs."),
              actionButton("eg1","Example 1"),
              actionButton("eg2","Example 2"),
              hr(),
@@ -124,8 +124,11 @@ resistant population is",
              ############################
              ###Portions from MixModel###
              ############################
-             
-             fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default)"),
+             wellPanel(
+               fluidRow(
+                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default)")
+               )
+             ),
              fluidRow(
                column(5,
                       plotOutput(outputId = "histoplot2")
@@ -148,6 +151,11 @@ resistant population is",
                         ),
                         h4("Downloads"),
                         downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
+                 ),
+                 column(4,
+                        "The following is the result of the model run using the default simulated dataset. 
+                        You can download the default dataset here:",
+                        downloadButton("defaultData", "Download default dataset")
                  )
                )
              )
@@ -452,13 +460,21 @@ server <- function(input, output, session) {
     }
     if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3, lty=3)}
   }
+  
+  ###downloadHandlers####
   output$downloadhistoplot2 <- downloadHandler(
     filename = function(){paste('histogram_',Sys.Date(),'.png',sep='')},
     content = function(file) {
       png(file) #if(...=="png"){png(file)} else if(...=="pdf"){pdf(file)}
       histoplot2fun()
       dev.off()
-    })   
+    })
+  output$defaultData <- downloadHandler(
+    filename = function(){paste('hl_data_', Sys.Date(),'.csv',sep='')},
+    content = function(file){
+      write.table(mixdatRHolder$Holder, file, col.names = FALSE, row.names = FALSE)
+    }
+  )
   
   proportionsmm <- reactive({MixModelResult$Holder$lambdaR})
   nn.mixdatmm <- reactive({nrow(mixdatRHolder$Holder)})
