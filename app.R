@@ -124,11 +124,24 @@ resistant population is",
              ############################
              ###Portions from MixModel###
              ############################
+             p("Before using your own data to run the model, it might be worth checking out how
+             your data input should be like, since the model will not run if the data is not in the 
+             correct format. The data input has to be a ", strong("csv"), "file with a", strong("single
+             column of half-life clearance data."),"There must be",strong("no column names or no row names.")),  
+             #br(),
+             # "You can download our simulated default dataset and have a look.",
+             # "The following is the result of the model run using the default simulated dataset. 
+             #            You can download the default dataset here:",
+             downloadButton("defaultData", "Download default/template dataset"),
+             p("You can use our simulated dataset as a template to copy and paste values of your data.
+             When saving, just keep the", strong("csv"), "format. \n"),
              wellPanel(
                fluidRow(
-                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default)")
+                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)")
                )
              ),
+             #something about the default dataset
+             textOutput("aboutDefault"),
              fluidRow(
                column(5,
                       plotOutput(outputId = "histoplot2")
@@ -151,12 +164,10 @@ resistant population is",
                         ),
                         h4("Downloads"),
                         downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
-                 ),
-                 column(4,
-                        "The following is the result of the model run using the default simulated dataset. 
-                        You can download the default dataset here:",
-                        downloadButton("defaultData", "Download default dataset")
-                 )
+                 )#,
+                 # column(4,
+                 #        ###other downloads maybe
+                 # )
                )
              )
     )
@@ -213,6 +224,11 @@ server <- function(input, output, session) {
     newvalue <- "Use the Mixture Model"
     updateTabItems(session, "panels", newvalue)
   })
+  
+  #something about the default dataset
+  rvAboutDataset <- reactiveValues(text = "This is a test!")
+  output$aboutDefault <- renderText(rvAboutDataset$text)
+  observeEvent(input$file,{rvAboutDataset$text=""})
   
   ####the functions for plotting####
   senmuR <- reactive({log(input$senmu)})
@@ -533,6 +549,7 @@ server <- function(input, output, session) {
       text(.5,.5,overlay, col="red")
     }
     else if(length(MixModelResult$Holder$muR)==1){
+      rvAboutDataset$text="The model predicts a single distribution!"
       frame()
       title(main="ROC curve can't be plotted \n since the model predicts a single distribution!")
     }
