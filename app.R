@@ -172,7 +172,9 @@ resistant population is",
                  # )
                )
              )
-    )
+    ),
+    tabPanel(title="Limitations"),
+    tabPanel(title="Related Resources")
   )
 )
 
@@ -406,31 +408,8 @@ server <- function(input, output, session) {
     from the graph representing your data. There is also a list of the probabilities of 
     each patient belonging to each of the component distributions depicted in the graph."})
   
-  # geometric_means_and_proportions <- function(){
-  #   mm <- MixModelResult$Holder
-  #   j <- length(mm$muR)
-  #   cat(cat("The model predicts ", j, " component geometric mean half lives (hours):",
-  # 
-  #       "\n\n"),
-  # 
-  #   for (a in 1:j) {
-  #     cat("Distribution",a,"\n",
-  # 
-  #         "Geometric mean = ", exp(mm$muR[a]),
-  # 
-  # 
-  #         "\n",
-  #         "SD = ", (mm$sigmaR[a]),
-  # 
-  #         "Contribution to composite distribution = ", mm$lambdaR[a],
-  # 
-  #         "\n\n"
-  # 
-  #     )
-  #   })
-  # }
-  #
-  abc <- function(){
+  
+  aboutDistribution <- function(){
     mm <- MixModelResult$Holder
     j <- length(mm$muR)
     k <- list()
@@ -444,28 +423,6 @@ server <- function(input, output, session) {
     tmp <- capture.output(cat(unlist(k)))
     paste("From the current dataset, the model predicts ", j, 
                        " component geometric mean half lives (hours).", tmp)
-    
-    # capture.output(cat("From the current dataset, the model predicts ", j, 
-    #       " component geometric mean half lives (hours).", unlist(k)))
-    # cat(cat("The model predicts ", j, " component geometric mean half lives (hours):",
-    #         
-    #         "\n\n"),
-    #     
-        # for (a in 1:j) {
-        #   cat("Distribution",a,"\n",
-        # 
-        #       "Geometric mean = ", exp(mm$muR[a]),
-        # 
-        # 
-        #       "\n",
-        #       "SD = ", (mm$sigmaR[a]),
-        # 
-        #       "Contribution to composite distribution = ", mm$lambdaR[a],
-        # 
-        #       "\n\n"
-        # 
-        #   )
-        # })
   }
 
   
@@ -577,7 +534,7 @@ server <- function(input, output, session) {
   output$ROC2 <- renderPlot({
     if(length(MixModelResult$Holder$muR)==2)
     { #plot ROC only if the number of distributions is <=2!
-      rvExplain$text <- abc() #geometric_means_and_proportions() #"rvExplain$text for 2 distributions" #renderText({      })
+      rvExplain$text <- aboutDistribution() #geometric_means_and_proportions() #"rvExplain$text for 2 distributions" #renderText({      })
       popDF <- genData.DFmm()
       
       TPR <- sum(res_popRmm()>=input$cutoff2)/length(res_popRmm())
