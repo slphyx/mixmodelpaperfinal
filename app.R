@@ -142,6 +142,8 @@ resistant population is",
              ),
              #something about the default dataset
              textOutput("aboutDefault"),
+             #verbatimTextOutput("explain"),
+             textOutput("explain"),
              fluidRow(
                column(5,
                       plotOutput(outputId = "histoplot2")
@@ -226,9 +228,12 @@ server <- function(input, output, session) {
   })
   
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "This is a test!")
+  rvAboutDataset <- reactiveValues(text = "something about the default dataset")
   output$aboutDefault <- renderText(rvAboutDataset$text)
   observeEvent(input$file,{rvAboutDataset$text=""})
+  
+  rvExplain <- reactiveValues(text="")
+  output$explain <- renderText(rvExplain$text)
   
   ####the functions for plotting####
   senmuR <- reactive({log(input$senmu)})
@@ -401,29 +406,69 @@ server <- function(input, output, session) {
     from the graph representing your data. There is also a list of the probabilities of 
     each patient belonging to each of the component distributions depicted in the graph."})
   
-  output$geometric_means_and_proportions <- renderPrint({
+  # geometric_means_and_proportions <- function(){
+  #   mm <- MixModelResult$Holder
+  #   j <- length(mm$muR)
+  #   cat(cat("The model predicts ", j, " component geometric mean half lives (hours):",
+  # 
+  #       "\n\n"),
+  # 
+  #   for (a in 1:j) {
+  #     cat("Distribution",a,"\n",
+  # 
+  #         "Geometric mean = ", exp(mm$muR[a]),
+  # 
+  # 
+  #         "\n",
+  #         "SD = ", (mm$sigmaR[a]),
+  # 
+  #         "Contribution to composite distribution = ", mm$lambdaR[a],
+  # 
+  #         "\n\n"
+  # 
+  #     )
+  #   })
+  # }
+  #
+  abc <- function(){
     mm <- MixModelResult$Holder
     j <- length(mm$muR)
-    cat("The model predicts ", j, " component geometric mean half lives (hours):",
-        
-        "\n\n")
-    
+    k <- list()
     for (a in 1:j) {
-      cat("Distribution",a,"\n",
-          
-          "Geometric mean = ", exp(mm$muR[a]),
-          
-          
-          "\n", 
-          "SD = ", (mm$sigmaR[a]),
-          
-          "Contribution to composite distribution = ", mm$lambdaR[a],
-          
-          "\n\n"
-          
-      )       
+      k[[a]] <- paste("Distribution",a,
+          "has a geometric mean of ", round(exp(mm$muR[a]),2),
+          "hours with SD ", round((mm$sigmaR[a]),2),
+          "hours. Its contribution to composite distribution is ", round(mm$lambdaR[a],2), "%."
+      )
     }
-  })
+    tmp <- capture.output(cat(unlist(k)))
+    paste("From the current dataset, the model predicts ", j, 
+                       " component geometric mean half lives (hours).", tmp)
+    
+    # capture.output(cat("From the current dataset, the model predicts ", j, 
+    #       " component geometric mean half lives (hours).", unlist(k)))
+    # cat(cat("The model predicts ", j, " component geometric mean half lives (hours):",
+    #         
+    #         "\n\n"),
+    #     
+        # for (a in 1:j) {
+        #   cat("Distribution",a,"\n",
+        # 
+        #       "Geometric mean = ", exp(mm$muR[a]),
+        # 
+        # 
+        #       "\n",
+        #       "SD = ", (mm$sigmaR[a]),
+        # 
+        #       "Contribution to composite distribution = ", mm$lambdaR[a],
+        # 
+        #       "\n\n"
+        # 
+        #   )
+        # })
+  }
+
+  
   
   mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
   observeEvent(input$file,{
@@ -532,6 +577,7 @@ server <- function(input, output, session) {
   output$ROC2 <- renderPlot({
     if(length(MixModelResult$Holder$muR)==2)
     { #plot ROC only if the number of distributions is <=2!
+      rvExplain$text <- abc() #geometric_means_and_proportions() #"rvExplain$text for 2 distributions" #renderText({      })
       popDF <- genData.DFmm()
       
       TPR <- sum(res_popRmm()>=input$cutoff2)/length(res_popRmm())
@@ -549,7 +595,7 @@ server <- function(input, output, session) {
       text(.5,.5,overlay, col="red")
     }
     else if(length(MixModelResult$Holder$muR)==1){
-      rvAboutDataset$text="The model predicts a single distribution!"
+      rvExplain$text="The model predicts a single distribution!"
       frame()
       title(main="ROC curve can't be plotted \n since the model predicts a single distribution!")
     }
