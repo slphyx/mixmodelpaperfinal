@@ -27,7 +27,7 @@ ui <- fluidPage(
              actionButton("eg1","Example 1"),
              actionButton("eg2","Example 2"),
              hr(),
-             h5("Example"),
+             h4("Example"),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
                "individuals, when the sensitive population has a geomatric half-life mean of ", 
@@ -124,6 +124,8 @@ resistant population is",
              ############################
              ###Portions from MixModel###
              ############################
+             br(),
+             h4("Before you start"),
              p("Before using your own data to run the model, it might be worth checking out how
              your data input should be like, since", strong("the model will not run if the data is not in the 
              correct format."), "The data input has to be a ", strong("csv"), "file with a", strong("single
@@ -143,6 +145,7 @@ resistant population is",
              #something about the default dataset
              textOutput("aboutDefault"),
              #verbatimTextOutput("explain"),
+             h4("Results"),
              textOutput("explain"),
              fluidRow(
                column(5,
@@ -158,20 +161,20 @@ resistant population is",
                  column(4,
                         checkboxInput(inputId = "showcutoff2",
                                       label = "Show cutoff line in the histogram",
-                                      value = TRUE
+                                      value = FALSE
                         ),
                         sliderInput(inputId = "cutoff2",
                                     label = "Cut-off half-life value",
                                     value = 5, min = 0, max = 10, step=.5
-                        ),
-                        h4("Downloads"),
-                        downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
+                        )
                  )#,
                  # column(4,
                  #        ###other downloads maybe
                  # )
                )
-             )
+             ),
+             h4("Downloads"),
+             downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
     ),
     tabPanel(title="Limitations"),
     tabPanel(title="Related Resources")
@@ -233,8 +236,10 @@ server <- function(input, output, session) {
   })
   
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "something about the default dataset, 
-                                   after your data input if you can see this message, the model is still running")
+  rvAboutDataset <- reactiveValues(text = "The following is the output of the model using the default dataset. 
+The output will change once you've uploaded your data and the model approximation is completed. 
+                                   Note: After your data input if you are still seeing this message, 
+                                   the model is running in the background. It'll take sometime depending on the size of your data.")
   output$aboutDefault <- renderText(rvAboutDataset$text)
   observeEvent(input$file,{rvAboutDataset$text=""})
   
