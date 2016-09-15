@@ -181,6 +181,9 @@ resistant population is",
 server <- function(input, output, session) {
   #having the parameters reflect on the text description
   set.seed(3)
+  rlnormR <- repeatable(rlnorm)
+  dlnormR <- repeatable(dlnorm)
+  
   output$senmuO <- renderText({
     as.character(input$senmu)
   })
@@ -243,8 +246,8 @@ server <- function(input, output, session) {
   resmuR <- reactive({log(input$resmu)})
   ressdR <- reactive({log(input$ressd)})
   
-  sen_popR <- reactive({rlnorm(input$nn*(1-(input$prop_resist/100)),senmuR(),sensdR())})
-  res_popR <- reactive({rlnorm(input$nn*(input$prop_resist/100),resmuR(),ressdR())})
+  sen_popR <- reactive({rlnormR(input$nn*(1-(input$prop_resist/100)),senmuR(),sensdR())})
+  res_popR <- reactive({rlnormR(input$nn*(input$prop_resist/100),resmuR(),ressdR())})
   
   
   genData <- reactive({
@@ -271,7 +274,7 @@ server <- function(input, output, session) {
     #casting multiple lines for different distributions
     lcolor <- c('blue','red','brown','green','yellow')
     for(k in 1:length(pmu)){
-      hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
+      hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
     if(input$showcutoff){abline(v=input$cutoff, col='red', lwd=3, lty=3)}
@@ -446,7 +449,7 @@ server <- function(input, output, session) {
     #casting multiple lines for different distributions
     lcolor <- c('blue','red','brown','green','yellow')
     for(k in 1:length(pmu)){
-      hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
+      hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
     if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3, lty=3)}
@@ -473,7 +476,7 @@ server <- function(input, output, session) {
     #casting multiple lines for different distributions
     lcolor <- c('blue','red','brown','green','yellow')
     for(k in 1:length(pmu)){
-      hx[[k]]<-plam[k]*dlnorm(x,meanlog=(pmu[k]),sdlog=psig[k])
+      hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
     }
     if(input$showcutoff2){abline(v=input$cutoff2, col='red', lwd=3, lty=3)}
@@ -514,8 +517,8 @@ server <- function(input, output, session) {
   #   
   # })
   
-  sen_popRmm <- reactive({rlnorm(nn.mixdatmm()*(1-proportionsmm()[2]),senmuRmm(),sensdRmm())})
-  res_popRmm <- reactive({rlnorm(nn.mixdatmm()*proportionsmm()[2],resmuRmm(),ressdRmm())})
+  sen_popRmm <- reactive({rlnormR(nn.mixdatmm()*(1-proportionsmm()[2]),senmuRmm(),sensdRmm())})
+  res_popRmm <- reactive({rlnormR(nn.mixdatmm()*proportionsmm()[2],resmuRmm(),ressdRmm())})
   
   
   genDatamm <- reactive({
