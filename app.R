@@ -139,7 +139,7 @@ resistant population is",
              When saving, just keep the", strong("csv"), "format. \n"),
              wellPanel(
                fluidRow(
-                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)", accept = c(".csv"))
+                 fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)", accept = c(".csv"))
                )
              ),
              #something about the default dataset
@@ -237,11 +237,12 @@ server <- function(input, output, session) {
   
   #something about the default dataset
   rvAboutDataset <- reactiveValues(text = "The following is the output of the model using the default dataset. 
-The output will change once you've uploaded your data and the model approximation is completed. 
-                                   Note: After your data input if you are still seeing this message, 
-                                   the model is running in the background. It'll take sometime depending on the size of your data.")
+                                   [This message will be faded when the model is running]")
+# The output will change once you've uploaded your data and the model approximation is completed. 
+#                                    Note: After your data input if you are still seeing this message, 
+#                                    the model is running in the background. It'll take sometime depending on the size of your data.")
   output$aboutDefault <- renderText(rvAboutDataset$text)
-  observeEvent(input$file,{rvAboutDataset$text=""})
+  observeEvent(input$file,{rvAboutDataset$text="Model approximation is completed! See below for the results from your data input."})
   
   rvExplain <- reactiveValues(text="")
   output$explain <- renderText(rvExplain$text)
@@ -424,16 +425,16 @@ The output will change once you've uploaded your data and the model approximatio
     k <- list()
     for (a in 1:j) {
       k[[a]] <- paste("Distribution",a,
-          "has a geometric mean of ", round(exp(mm$muR[a]),2),
-          "hours with SD ", round(exp(mm$sigmaR[a]),2),
-          "hours. Its contribution to composite distribution is ", round(mm$lambdaR[a]*100,2), "%."
+                      "has a geometric mean of ", round(exp(mm$muR[a]),2),
+                      "hours with SD ", round(exp(mm$sigmaR[a]),2),
+                      "hours. Its contribution to composite distribution is ", round(mm$lambdaR[a]*100,2), "%."
       )
     }
     tmp <- capture.output(cat(unlist(k)))
     paste("From the current dataset, the model predicts ", j, 
-                       " component geometric mean half lives (hours).", tmp)
+          " component geometric mean half lives (hours).", tmp)
   }
-
+  
   
   
   mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
