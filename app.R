@@ -49,7 +49,8 @@ resistant population is",
                "percent of the population as resistant.", 
                "The use of cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
                br(),
-               p("Here, we're providing a tool to anlayze the parasite clearance half-life data as 
+               p("Here, we're providing a tool based on the model developed by", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),
+                "to anlayze the parasite clearance half-life data as 
                distributions of artemisinin-sensitive and artemisinin-resistant populations. 
                Please go to the", actionLink("link_to_MMpage", "next page"), "to use it.")
                #HTML("<a href='#histoplot1'>next page</a>."),
@@ -125,25 +126,29 @@ resistant population is",
              ###Portions from MixModel###
              ############################
              br(),
-             h4("Before you start"),
-             p("Before using your own data to run the model, it might be worth checking out how
-             your data input should be like, since", strong("the model will not run if the data is not in the 
-             correct format."), "The data input has to be a ", strong("csv"), "file with a", strong("single
-             column of half-life clearance data."),"There must be",strong("no column names or no row names.")),  
-             #br(),
-             # "You can download our simulated default dataset and have a look.",
-             # "The following is the result of the model run using the default simulated dataset. 
-             #            You can download the default dataset here:",
-             downloadButton("defaultData", "Download default/template dataset"),
-             p("You can use our simulated dataset as a template to copy and paste (overwrite) values of your data.
-             When saving, just keep the", strong("csv"), "format. \n"),
-             wellPanel(
-               fluidRow(
-                 fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)", accept = c(".csv"))
-               )
-             ),
-             #something about the default dataset
-             textOutput("aboutDefault"),
+             fluidRow(column(6,
+                             h4("Before you start"),
+                             p("Before using your own data to run the model, it might be worth checking out how
+                               your data input should be like, since", strong("the model will not run if the data is not in the 
+                                                                              correct format."), "The data input has to be a ", strong("csv"), "file with a", strong("single
+                                                                                                                                                                     column of half-life clearance data."),"There must be",strong("no column names or no row names.")),  
+                             #br(),
+                             # "You can download our simulated default dataset and have a look.",
+                             # "The following is the result of the model run using the default simulated dataset. 
+                             #            You can download the default dataset here:",
+                             downloadButton("defaultData", "Download default/template dataset"),
+                             p("You can use our simulated dataset as a template to copy and paste (overwrite) the values of your data.
+                               When saving, just keep the", strong("csv"), "format. \n")
+                             ),
+                      column(5,
+                             h4("Using your data"),
+                             wellPanel(
+                               fileInput(inputId = "file", label = "Your input file: ", accept = c(".csv"))
+                             ),
+                             #something about the default dataset
+                             textOutput("aboutDefault")
+                             )),
+             hr(),
              #verbatimTextOutput("explain"),
              h4("Results"),
              textOutput("explain"),
@@ -174,7 +179,8 @@ resistant population is",
                )
              ),
              h4("Downloads"),
-             downloadButton('downloadhistoplot2',"Download histogram (works only in browser)")
+             downloadButton('downloadhistoplot2',"Download histogram (works only in browser)"),
+             downloadButton('resultData',"Download the results in a table")
     ),
     tabPanel(title="Limitations"),
     tabPanel(title="Related Resources")
@@ -435,6 +441,19 @@ server <- function(input, output, session) {
           " component geometric mean half lives (hours).", tmp)
   }
   
+  resultTable <- function(){
+    mm <- MixModelResult$Holder
+    j <- length(mm$muR)
+    Distributions <- Mean_hours <- SD_hours <- Contribution_percent <- NA
+    for (a in 1:j) {
+      Distributions[a] <- paste("Distribution", a)
+      Mean_hours[a] <- round(exp(mm$muR[a]),2)
+      SD_hours[a] <- round(exp(mm$sigmaR[a]),2)
+      Contribution_percent[a] <- round(mm$lambdaR[a]*100,2)
+    }
+    as.data.frame(cbind(Distributions, Mean_hours, SD_hours, Contribution_percent))
+  }
+  
   
   
   mixdatRHolder <- reactiveValues(Holder=read.csv("simulated_data_for_input.csv", header=F))
@@ -501,6 +520,12 @@ server <- function(input, output, session) {
     filename = function(){paste('hl_data_', Sys.Date(),'.csv',sep='')},
     content = function(file){
       write.table(mixdatRHolder$Holder, file, col.names = FALSE, row.names = FALSE)
+    }
+  )
+  output$resultData <- downloadHandler(
+    filename = function(){paste('result_', Sys.Date(),'.csv',sep='')},
+    content = function(file){
+      write.csv(resultTable(), file) #, col.names = FALSE, row.names = FALSE)
     }
   )
   
