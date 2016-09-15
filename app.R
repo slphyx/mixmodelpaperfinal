@@ -137,7 +137,7 @@ resistant population is",
              When saving, just keep the", strong("csv"), "format. \n"),
              wellPanel(
                fluidRow(
-                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)")
+                        fileInput(inputId = "file", label = "Your input file: (simulated dataset has been used as default, please wait)", accept = c(".csv"))
                )
              ),
              #something about the default dataset
@@ -272,7 +272,7 @@ server <- function(input, output, session) {
     hx <- list()
     
     #casting multiple lines for different distributions
-    lcolor <- c('blue','red','brown','green','yellow')
+    lcolor <- c('blue','red','green','yellow','brown')
     for(k in 1:length(pmu)){
       hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
@@ -474,7 +474,7 @@ server <- function(input, output, session) {
     hx <- list()
     
     #casting multiple lines for different distributions
-    lcolor <- c('blue','red','brown','green','yellow')
+    lcolor <- c('blue','red','green','yellow','brown')
     for(k in 1:length(pmu)){
       hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
@@ -560,8 +560,9 @@ server <- function(input, output, session) {
       title(main="ROC curve can't be plotted \n since the model predicts a single distribution!")
     }
     else if(length(MixModelResult$Holder$muR)>2){
+      rvExplain$text <- aboutDistribution()
       frame()
-      title(main="ROC curve can't be plotted \n since the number of distributions is more than 2!")
+      title(main="ROC curve can't be plotted since \n the number of distributions is more than 2!")
     }
     else {
       frame()
