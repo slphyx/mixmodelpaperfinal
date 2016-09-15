@@ -120,20 +120,20 @@ resistant population is",
              ###test####
              #p(textOutput("genDataOut"))
     ),
-    tabPanel(title = "Use the Mixture Model",
+    tabPanel(title = "Use the Mixture Model from White et al.",
              ############################
              ###Portions from MixModel###
              ############################
              p("Before using your own data to run the model, it might be worth checking out how
-             your data input should be like, since the model will not run if the data is not in the 
-             correct format. The data input has to be a ", strong("csv"), "file with a", strong("single
+             your data input should be like, since", strong("the model will not run if the data is not in the 
+             correct format."), "The data input has to be a ", strong("csv"), "file with a", strong("single
              column of half-life clearance data."),"There must be",strong("no column names or no row names.")),  
              #br(),
              # "You can download our simulated default dataset and have a look.",
              # "The following is the result of the model run using the default simulated dataset. 
              #            You can download the default dataset here:",
              downloadButton("defaultData", "Download default/template dataset"),
-             p("You can use our simulated dataset as a template to copy and paste values of your data.
+             p("You can use our simulated dataset as a template to copy and paste (overwrite) values of your data.
              When saving, just keep the", strong("csv"), "format. \n"),
              wellPanel(
                fluidRow(
@@ -228,12 +228,13 @@ server <- function(input, output, session) {
   
   #link to next page
   observeEvent(input$link_to_MMpage,{
-    newvalue <- "Use the Mixture Model"
+    newvalue <- "Use the Mixture Model from White et al."
     updateTabItems(session, "panels", newvalue)
   })
   
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "something about the default dataset")
+  rvAboutDataset <- reactiveValues(text = "something about the default dataset, 
+                                   after your data input if you can see this message, the model is still running")
   output$aboutDefault <- renderText(rvAboutDataset$text)
   observeEvent(input$file,{rvAboutDataset$text=""})
   
@@ -272,7 +273,7 @@ server <- function(input, output, session) {
     hx <- list()
     
     #casting multiple lines for different distributions
-    lcolor <- c('blue','red','green','yellow','brown')
+    lcolor <- c('blue','red','magenta','brown','green')
     for(k in 1:length(pmu)){
       hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
@@ -419,8 +420,8 @@ server <- function(input, output, session) {
     for (a in 1:j) {
       k[[a]] <- paste("Distribution",a,
           "has a geometric mean of ", round(exp(mm$muR[a]),2),
-          "hours with SD ", round((mm$sigmaR[a]),2),
-          "hours. Its contribution to composite distribution is ", round(mm$lambdaR[a],2), "%."
+          "hours with SD ", round(exp(mm$sigmaR[a]),2),
+          "hours. Its contribution to composite distribution is ", round(mm$lambdaR[a]*100,2), "%."
       )
     }
     tmp <- capture.output(cat(unlist(k)))
@@ -447,7 +448,7 @@ server <- function(input, output, session) {
     hx <- list()
     
     #casting multiple lines for different distributions
-    lcolor <- c('blue','red','brown','green','yellow')
+    lcolor <- c('blue','red','magenta','brown','green')
     for(k in 1:length(pmu)){
       hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
@@ -474,7 +475,7 @@ server <- function(input, output, session) {
     hx <- list()
     
     #casting multiple lines for different distributions
-    lcolor <- c('blue','red','green','yellow','brown')
+    lcolor <- c('blue','red','magenta','brown','green')
     for(k in 1:length(pmu)){
       hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
       lines(x,hx[[k]],col=lcolor[k], lwd=5)
