@@ -182,9 +182,27 @@ resistant population is",
              downloadButton('downloadhistoplot2',"Download histogram (works only in browser)"),
              downloadButton('resultData',"Download the results in a table")
     ),
-    tabPanel(title="Limitations"),
-    tabPanel(title="Related Resources")
+    tabPanel(title="Limitations",
+             br(),
+             h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
+             tags$ul(tags$li("The clearance half-lives of infections with a particular sensitivity are assumed to follow unimodal distributions of log-normal type."),
+                     tags$li("The maximum number of subpopulations the model can detect is 5."),
+                     tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations i.e., the model will correctly predict 2-component distributions around 90% of the time, whereas it will correctly predict only around 20% of 5-component distributions."),
+                     tags$li("While using this web application, when the window of the browser is resized, the histogram will disappear. They will reappear when you change one of the parameters given for the histogram.")
+             )),
+    tabPanel(title="Related Resources",
+             br(),
+             tags$ul(
+               tags$li("The original paper by White et al. (2015) on which this web application is based:", a(href="http://bit.ly/White-et-al-2015","Defining the In Vivo Phenotype of Artemisinin-Resistant Falciparum Malaria: A Modelling Approach")),
+               tags$li("Exploration of the model's limitation:", a(href="http://bit.ly/White-2015-S1", "Supporting information 1, White et al. (2015)" )),
+               tags$li(a(href="http://bit.ly/White-2015-code","Source codes of the original model by White et al. (2015)")),
+               tags$li(a(href="http://bit.ly/2cJWpVr","WHO updates on artemisinin resistance")),
+               tags$li(a(href="http://bit.ly/2d4hV7V","Parasite Clearance Estimator (PCE)")),
+               tags$li("Published paper for this web application: submitted"),
+               tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes for this web application"))
+             )
   )
+)
 )
 
 server <- function(input, output, session) {
@@ -406,25 +424,7 @@ server <- function(input, output, session) {
   ############################################################
   ###Following has been put out of the previous renderPlot####
   ############################################################
-  
-  #Calculate the probabilities of an individual patient, typed into the box by the user, belong to each component distribution.
-  # Print the results. 
-  output$explanation1 <- renderText({"Below are two graphs. The graph on the left
-    represents aggregate data from White et al. 2015. The graph on the right is a graph made from your data."})
-  
-  output$explanation2 <- renderText({"The graph on th left depicts two half life distributions
-    with geometric means SOMETHING AND SOMETHING ELSE respectively. 
-    The distribution with a geometric mean half life of SOMETHING was intepreted
-    as representing patients with parasites sensitive to artemisinin. The distribution
-    with a geometric mean half life of SOMETHING ELSE was interpreted as representing
-    patients with parasites resistant artemisinin. With this information, you may be able
-    to interpret the graph on the rigth, which represents your own data."})
-  
-  output$explanation3 <- renderText({"Below are some statistics from 
-    from the graph representing your data. There is also a list of the probabilities of 
-    each patient belonging to each of the component distributions depicted in the graph."})
-  
-  
+
   aboutDistribution <- function(){
     mm <- MixModelResult$Holder
     j <- length(mm$muR)
