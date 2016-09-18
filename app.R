@@ -16,8 +16,8 @@ ui <- fluidPage(
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
                                                         "Update on artemisinin and ACT resistance - April 2016"),
                "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
-               artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\".",
-               "In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
+               artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\"."),
+            p("In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
                "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
                 sensitive and resistant populations each assume unimodal distribution."
              ),
@@ -115,8 +115,8 @@ resistant population is",
                  )
                )
              ),
-             br(),
-             p("This is the end of part 1.")
+             br() #,
+             #p("This is the end of part 1.")
              
              ###test####
              #p(textOutput("genDataOut"))
@@ -146,8 +146,9 @@ resistant population is",
                                fileInput(inputId = "file", label = "Your input file: ", accept = c(".csv"))
                              ),
                              #something about the default dataset
-                             textOutput("aboutDefault")
-                             )),
+                             verbatimTextOutput("aboutDefault") #textOutput("aboutDefault")
+                             )
+                      ),
              hr(),
              #verbatimTextOutput("explain"),
              h4("Results"),
@@ -179,7 +180,7 @@ resistant population is",
                )
              ),
              h4("Downloads"),
-             downloadButton('downloadhistoplot2',"Download histogram (works only in browser)"),
+             downloadButton('downloadhistoplot2',"Download the histogram"),
              downloadButton('resultData',"Download the results in a table")
     ),
     tabPanel(title="Limitations",
@@ -187,7 +188,7 @@ resistant population is",
              h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
              tags$ul(tags$li("The clearance half-lives of infections with a particular sensitivity are assumed to follow unimodal distributions of log-normal type."),
                      tags$li("The maximum number of subpopulations the model can detect is 5."),
-                     tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations i.e., the model will correctly predict 2-component distributions around 90% of the time, whereas it will correctly predict only around 20% of 5-component distributions."),
+                     tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations. Eg., For a sample size of 1,000, the model will correctly predict 96%, 91%, 70%, 46% and 21% for the input mixture distributions of 1, 2, 3, 4 and 5 components respectively."),
                      tags$li("While using this web application, when the window of the browser is resized, the histogram will disappear. They will reappear when you change one of the parameters given for the histogram.")
              )),
     tabPanel(title="Related Resources",
@@ -260,13 +261,12 @@ server <- function(input, output, session) {
   })
   
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "The following is the output of the model using the default dataset. 
-                                   [This message will be faded when the model is running]")
+  rvAboutDataset <- reactiveValues(text = "**Processing status** \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
 # The output will change once you've uploaded your data and the model approximation is completed. 
 #                                    Note: After your data input if you are still seeing this message, 
 #                                    the model is running in the background. It'll take sometime depending on the size of your data.")
   output$aboutDefault <- renderText(rvAboutDataset$text)
-  observeEvent(input$file,{rvAboutDataset$text="Model approximation is completed! See below for the results from your data input."})
+  observeEvent(input$file,{rvAboutDataset$text="*************************************\n* Model approximation is completed! *\n*************************************\nSee below for the results!"})
   
   rvExplain <- reactiveValues(text="")
   output$explain <- renderText(rvExplain$text)
@@ -414,9 +414,12 @@ server <- function(input, output, session) {
     list(muR = na.omit(output.mu), sigmaR = na.omit(output.sigma), lambdaR = na.omit(output.lambda))
   })
   #pmu = c(1.392575, 1.947629),
-  MixModelResult <- reactiveValues(Holder = list(muR = c(0.6931472, 1.791759),
-                                                 sigmaR = c(0.4046619, 0.2105479),
-                                                 lambdaR = c(0.768316174910847, 0.231683825089153)))
+  MixModelResult <- reactiveValues(Holder =  list(muR = c(1.392575, 1.947629),
+                                                  sigmaR = c(0.4046619, 0.2105479),
+                                                  lambdaR = c(0.231683825089153 ,0.768316174910847)))
+                                     # list(muR = c(0.6931472, 1.791759),
+                                     #             sigmaR = c(0.4046619, 0.2105479),
+                                     #             lambdaR = c(0.768316174910847, 0.231683825089153)))
   observeEvent(input$file,{
     MixModelResult$Holder <- MixModel()
   })
