@@ -138,7 +138,8 @@ resistant population is",
                              #            You can download the default dataset here:",
                              downloadButton("defaultData", "Download default/template dataset"),
                              p("You can use our simulated dataset as a template to copy and paste (overwrite) the values of your data.
-                               When saving, just keep the", strong("csv"), "format. \n")
+                               When saving, just keep the", strong("csv"), "format. Your uploaded data is used only for running the model, 
+                               and it will not be stored.")
                              ),
                       column(5,
                              h4("Using your data"),
