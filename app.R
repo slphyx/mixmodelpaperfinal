@@ -11,7 +11,8 @@ ui <- fluidPage(
   
   tabsetPanel(
     id="panels",
-    tabPanel(title = "Introduction",
+    tabPanel(title = "Introduction"),
+    tabPanel(title = "Simulation",
              br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
                                                         "Update on artemisinin and ACT resistance - April 2016"),
@@ -28,6 +29,7 @@ ui <- fluidPage(
              actionButton("eg2","Example 2"),
              hr(),
              h4("Example"),
+            h3(textOutput("exampleTitle")),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
                "individuals, when the sensitive population has a geomatric half-life mean of ", 
@@ -213,6 +215,8 @@ server <- function(input, output, session) {
   rlnormR <- repeatable(rlnorm)
   dlnormR <- repeatable(dlnorm)
   
+  output$exampleTitle <- renderText({exampleTitleReactives$value})
+  exampleTitleReactives <- reactiveValues(value="Example 1")
   output$senmuO <- renderText({
     as.character(input$senmu)
   })
@@ -237,6 +241,7 @@ server <- function(input, output, session) {
   
   ####updateSliderInput####
   observeEvent(input$eg1,{
+    exampleTitleReactives$value <- "Example 1"
     updateSliderInput(session, "senmu", value=3)
     updateSliderInput(session, "sensd", value=1.22)
     updateSliderInput(session, "resmu", value=6)
@@ -246,6 +251,8 @@ server <- function(input, output, session) {
     updateSliderInput(session, "cutoff", value=5)
   })
   observeEvent(input$eg2,{
+    exampleTitleReactives$value <- "Example 2"
+    #updateTextInput(session, "exampleTitle", value="Example 2")
     updateSliderInput(session, "senmu", value=3.5)
     updateSliderInput(session, "sensd", value=1.35)
     updateSliderInput(session, "resmu", value=6)
