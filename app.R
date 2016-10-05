@@ -12,26 +12,24 @@ ui <- fluidPage(
   tabsetPanel(
     id="panels",
     tabPanel(title = "Introduction",
-             h2("Identify  artemisinin resistance from parasite clearance half-life data")),
-    tabPanel(title = "Simulation",
              h2("Identify  artemisinin resistance from parasite clearance half-life data"),
              br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
                                                         "Update on artemisinin and ACT resistance - April 2016"),
                "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
                artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\"."),
-            p("In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
+             p("In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
                "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
-                sensitive and resistant populations each assume unimodal distribution."
+               sensitive and resistant populations each assume unimodal distribution."
              ),
              #p("Reactive buttons to change between Example 1 and Example 2"),
              p("Click on each button to populate the respective example.",
-               "You can also use the parameters to change the outputs."),
+               "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simualte your own distribution."),
              actionButton("eg1","Example 1"),
              actionButton("eg2","Example 2"),
              hr(),
-             h4("Example"),
-            h3(textOutput("exampleTitle")),
+             #h4("Example"),
+             h3(textOutput("exampleTitle")),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
                "individuals, when the sensitive population has a geomatric half-life mean of ", 
@@ -43,7 +41,7 @@ ui <- fluidPage(
                "hours with the standard deviation of ",
                strong(textOutput("ressdO",inline=T)),
                "hours then the distribution will look like the following plot. If the percentage of 
-resistant population is",
+               resistant population is",
                strong(textOutput("prop_resistO",inline=T)),
                
                ", the cutoff value of ",
@@ -54,16 +52,33 @@ resistant population is",
                "The use of cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
                br(),
                p("Here, we're providing a tool based on the model developed by", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),
-                "to anlayze the parasite clearance half-life data as 
-               distributions of artemisinin-sensitive and artemisinin-resistant populations. 
-               Please go to the", actionLink("link_to_MMpage", "next page"), "to use it.")
+                 "to anlayze the parasite clearance half-life data as 
+                 distributions of artemisinin-sensitive and artemisinin-resistant populations. 
+                 Please go to the", actionLink("link_to_MMpage", "Use your data"), "tab to use it.")
                #HTML("<a href='#histoplot1'>next page</a>."),
                
                #br(),
                #p("You can also use the parameters below to change the following plots.")
                #  "In fact ",
                # textOutput("overlayO", inline=T)
+               ),
+             
+             fluidRow(
+               column(5,
+                      #plotOutput(outputId = "densityplot")
+                      plotOutput(outputId = "histoplot1_intro")
+               ),
+               column(5,
+                      plotOutput(outputId = "ROC_intro")
+               )
+               
+             )
              ),
+    tabPanel(title = "Simulation",
+             h2("Identify  artemisinin resistance from parasite clearance half-life data"),
+             br(),
+             
+             ##deleted codes###
              
              fluidRow(
                column(5,
@@ -125,7 +140,7 @@ resistant population is",
              ###test####
              #p(textOutput("genDataOut"))
     ),
-    tabPanel(title = "Use the Mixture Model from White et al.",
+    tabPanel(title = "Use your data",
              h2("Identify  artemisinin resistance from parasite clearance half-life data"),
              ############################
              ###Portions from MixModel###
@@ -191,7 +206,7 @@ resistant population is",
     ),
     tabPanel(title="Limitations & Related Resources",
              h2("Identify  artemisinin resistance from parasite clearance half-life data"),
-             br(),
+             #br(),
              h3("Limitations"),
              h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
              tags$ul(tags$li("The clearance half-lives of infections with a particular sensitivity are assumed to follow unimodal distributions of log-normal type."),
@@ -269,9 +284,16 @@ server <- function(input, output, session) {
   
   #link to next page
   observeEvent(input$link_to_MMpage,{
-    newvalue <- "Use the Mixture Model from White et al."
+    newvalue <- "Use your data"
     updateTabItems(session, "panels", newvalue)
   })
+  
+  #link to simulation page
+  observeEvent(input$link_to_SIMpage,{
+    newvalue <- "Simulation"
+    updateTabItems(session, "panels", newvalue)
+  })
+  
   
   #something about the default dataset
   rvAboutDataset <- reactiveValues(text = "**Processing status** \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
@@ -302,7 +324,30 @@ server <- function(input, output, session) {
     #total_pop <- c(sen_pop,res_pop)
   })
   
+  #for the introduction
+  output$histoplot1_intro <- renderPlot({
+    #for now it only works for 2 distributions (sensitive and resistant distributions)
+    
+    plam<-c(1-(input$prop_resist/100),(input$prop_resist/100))
+    pmu<-c(senmuR(),resmuR())
+    psig<-c(sensdR(),ressdR())
+    
+    hist(genData(),freq=FALSE,main = paste("Distribution of parasite clearance half lives","\n", "from the parameters"),xlab = "Clearance half-life (hours)",ylim=c(0,0.6),col="grey",lwd=2,ps=20) #taken out for shiny #,breaks=c(0,1,2,3,4,5,6,7,8,9,10,11,12)
+    
+    x <- seq(0.1, max(genData()), length=1000)
+    hx <- list()
+    
+    #casting multiple lines for different distributions
+    lcolor <- c('blue','red','magenta','brown','green')
+    for(k in 1:length(pmu)){
+      hx[[k]]<-plam[k]*dlnormR(x,meanlog=(pmu[k]),sdlog=psig[k])
+      lines(x,hx[[k]],col=lcolor[k], lwd=5)
+    }
+    if(input$showcutoff){abline(v=input$cutoff, col='red', lwd=3, lty=3)}
+    
+  })
   
+  #for the simulation
   output$histoplot1 <- renderPlot({
     #for now it only works for 2 distributions (sensitive and resistant distributions)
     
@@ -328,6 +373,30 @@ server <- function(input, output, session) {
   genData.DF <- reactive({
     cbind(genData(),c(rep(0,length(sen_popR())),rep(1,length(res_popR()))))
   })
+  
+  #for introduction
+  output$ROC_intro <- renderPlot({
+    popDF <- genData.DF()
+    
+    TPR <- sum(res_popR()>=input$cutoff)/length(res_popR())
+    FPR <- sum(sen_popR()>=input$cutoff)/length(sen_popR())
+    
+    true_res <- sum(res_popR()>=input$cutoff)
+    fal_res <- sum(sen_popR()>=input$cutoff)
+    fal_sen <- sum(res_popR()<input$cutoff)
+    true_sen <- sum(sen_popR()<input$cutoff)
+    overlay <- paste(true_res," truly resistant, ", fal_res, " falsely resistant \n",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
+    #overlay2 <- paste(true_res," truly resistant, ", fal_res, " falsely resistant ",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
+    #for output in the text #comment out the line above and below to get them back
+    output$capturedO <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
+    #output$overlayO <- renderText(overlay2)
+    
+    roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
+    points((1-FPR),TPR, col="red", pch=19)
+    text(.5,.5,overlay, col="red")
+  })
+  
+  #for the simulation
   output$ROC <- renderPlot({
     popDF <- genData.DF()
     
