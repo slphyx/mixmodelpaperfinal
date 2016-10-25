@@ -12,24 +12,23 @@ ui <- fluidPage(
   tabsetPanel(
     id="panels",
     tabPanel(title = "Introduction",
-             h2("Identify  artemisinin resistance from parasite clearance half-life data"),
+             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              br(),
-             p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-april2016/en/", 
-                                                        "Update on artemisinin and ACT resistance - April 2016"),
+             p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/", 
+                                                        "Update on artemisinin and ACT resistance"),
                "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
                artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\"."),
-             p("In the following two examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
-               "These examples assume that the parasite clearance half-lives are in log-normal distribution, and that the values for 
-               sensitive and resistant populations each assume unimodal distribution."
+             p("In the following hypothetical examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
+               "Assumptions provided in", actionLink("link_to_LIMITpage", "Limitations"), "tab are applied here.",
+               strong("Click"), "on each button below to populate the respective example."
              ),
              #p("Reactive buttons to change between Example 1 and Example 2"),
-             p("Click on each button to populate the respective example.",
-               "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simualte your own distribution."),
+             #p("Click on each button below to populate the respective example."),
              actionButton("eg1","Example 1"),
-             actionButton("eg2","Example 2"),
+             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simualte your own distribution.",
              hr(),
              #h4("Example"),
-             h3(textOutput("exampleTitle")),
+             h4(textOutput("exampleTitle")),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
                "individuals, when the sensitive population has a geomatric half-life mean of ", 
@@ -75,7 +74,7 @@ ui <- fluidPage(
              )
              ),
     tabPanel(title = "Simulation",
-             h2("Identify  artemisinin resistance from parasite clearance half-life data"),
+             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              br(),
              
              ##deleted codes###
@@ -141,7 +140,7 @@ ui <- fluidPage(
              #p(textOutput("genDataOut"))
     ),
     tabPanel(title = "Use your data",
-             h2("Identify  artemisinin resistance from parasite clearance half-life data"),
+             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              ############################
              ###Portions from MixModel###
              ############################
@@ -205,7 +204,7 @@ ui <- fluidPage(
              downloadButton('resultData',"Download the results in a table")
     ),
     tabPanel(title="Limitations & Related Resources",
-             h2("Identify  artemisinin resistance from parasite clearance half-life data"),
+             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              h3("Limitations"),
              h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
@@ -220,7 +219,7 @@ ui <- fluidPage(
                tags$li("The original paper by White et al. (2015) on which this web application is based:", a(href="http://bit.ly/White-et-al-2015","Defining the In Vivo Phenotype of Artemisinin-Resistant Falciparum Malaria: A Modelling Approach")),
                tags$li("Exploration of the model's limitation:", a(href="http://bit.ly/White-2015-S1", "Supporting information 1, White et al. (2015)" )),
                tags$li(a(href="http://bit.ly/White-2015-code","Source codes of the original model by White et al. (2015)")),
-               tags$li(a(href="http://bit.ly/2cJWpVr","WHO updates on artemisinin resistance")),
+               tags$li(a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/","WHO updates on artemisinin resistance")),
                tags$li(a(href="http://bit.ly/2d4hV7V","Parasite Clearance Estimator (PCE)")),
                tags$li("Published paper for this web application: submitted"),
                tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes for this web application"))
@@ -291,6 +290,12 @@ server <- function(input, output, session) {
   #link to simulation page
   observeEvent(input$link_to_SIMpage,{
     newvalue <- "Simulation"
+    updateTabItems(session, "panels", newvalue)
+  })
+  
+  #link to simulation page
+  observeEvent(input$link_to_LIMITpage,{
+    newvalue <- "Limitations & Related Resources"
     updateTabItems(session, "panels", newvalue)
   })
   
