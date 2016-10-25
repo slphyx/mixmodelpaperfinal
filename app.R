@@ -13,7 +13,7 @@ ui <- fluidPage(
     id="panels",
     tabPanel(title = "Introduction",
              h3("Identify  artemisinin resistance from parasite clearance half-life data"),
-             br(),
+             #br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/", 
                                                         "Update on artemisinin and ACT resistance"),
                "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
@@ -25,7 +25,7 @@ ui <- fluidPage(
              #p("Reactive buttons to change between Example 1 and Example 2"),
              #p("Click on each button below to populate the respective example."),
              actionButton("eg1","Example 1"),
-             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simualte your own distribution.",
+             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distribution.",
              hr(),
              #h4("Example"),
              h4(textOutput("exampleTitle")),
@@ -74,25 +74,17 @@ ui <- fluidPage(
              )
              ),
     tabPanel(title = "Simulation",
-             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
-             br(),
+             h3("Simulate the distributions using the parameters provided below"),
+             #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
+             #br(),
              
              ##deleted codes###
              
-             fluidRow(
-               column(5,
-                      #plotOutput(outputId = "densityplot")
-                      plotOutput(outputId = "histoplot1")
-               ),
-               column(5,
-                      plotOutput(outputId = "ROC")
-               )
-               
-             ),
-             wellPanel(
+             
                fluidRow(
                  column(4,
-                        h3("Sensitive Distribution"),
+                        strong("Sensitive Distribution"),
+                        wellPanel(
                         sliderInput(inputId = "senmu",
                                     label = "Mean half-life (hours)",
                                     value = 3, min = 1, max = 6.5, step = .5
@@ -101,9 +93,10 @@ ui <- fluidPage(
                                     label = "SD (hours)",
                                     value = 1.26, min = 1, max = 2.1
                         )
-                 ),
+                 )),
                  column(4,
-                        h3("Resistant Distribution"),
+                        strong("Resistant Distribution"),
+                        wellPanel(
                         sliderInput(inputId = "resmu",
                                     label = "Mean half-life (hours)",
                                     value = 6, min = 5, max = 10, step = .5
@@ -116,22 +109,48 @@ ui <- fluidPage(
                                     label = "% of resistant population",
                                     value = 10, min = 0, max = 100
                         )
-                 ),
+                 )),
                  column(4,
-                        numericInput(inputId = "nn",
-                                     label = "Sample Size:",
-                                     value = 500
+                        fluidRow(
+                        column(5,
+                               numericInput(inputId = "nn",
+                                            label = "Sample Size:",
+                                            value = 500
+                               ))),
+                        # column(6,
+                        #        checkboxInput(inputId = "showcutoff",
+                        #                      label = "Show cut-off line", # in the histogram",
+                        #                      value = TRUE
+                        #        ))),
+                        # numericInput(inputId = "nn",
+                        #              label = "Sample Size:",
+                        #              value = 500
+                        # ),
+                        # checkboxInput(inputId = "showcutoff",
+                        #               label = "Show cutoff line in the histogram",
+                        #               value = TRUE
+                        # ),
+                        wellPanel(
+                        sliderInput(inputId = "cutoff",
+                                    label = "Cut-off half-life value",
+                                    value = 5, min = 0, max = 10, step=.5
                         ),
                         checkboxInput(inputId = "showcutoff",
                                       label = "Show cutoff line in the histogram",
                                       value = TRUE
-                        ),
-                        sliderInput(inputId = "cutoff",
-                                    label = "Cut-off half-life value",
-                                    value = 5, min = 0, max = 10, step=.5
-                        )
+                        ))
                  )
+               ),
+             h4("Results"),
+             fluidRow(
+               column(5,
+                      #plotOutput(outputId = "densityplot")
+                      plotOutput(outputId = "histoplot1")
+               ),
+               column(5,
+                      plotOutput(outputId = "ROC")
                )
+               
              ),
              br() #,
              #p("This is the end of part 1.")
@@ -144,7 +163,7 @@ ui <- fluidPage(
              ############################
              ###Portions from MixModel###
              ############################
-             br(),
+             #br(),
              fluidRow(column(6,
                              h4("Before you start"),
                              p("Before using your own data to run the model, it might be worth checking out how
@@ -257,6 +276,12 @@ server <- function(input, output, session) {
   output$cutoffO <- renderText({
     as.character(input$cutoff)
   })
+  
+  #output for simulation page
+  output$cutoffOsim <- renderText({
+    as.character(input$cutoff)
+  })
+  #capturedO is somewhere else
   
   ####updateSliderInput####
   observeEvent(input$eg1,{
@@ -394,6 +419,7 @@ server <- function(input, output, session) {
     #overlay2 <- paste(true_res," truly resistant, ", fal_res, " falsely resistant ",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
     #for output in the text #comment out the line above and below to get them back
     output$capturedO <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
+    #output$capturedOsim <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
     #output$overlayO <- renderText(overlay2)
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
@@ -416,6 +442,7 @@ server <- function(input, output, session) {
     #overlay2 <- paste(true_res," truly resistant, ", fal_res, " falsely resistant ",fal_sen," falsely sensitive, ",true_sen," truly sensitive")
     #for output in the text #comment out the line above and below to get them back
     output$capturedO <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
+    #output$capturedOsim <- renderText(as.character(round(sum(genData()>=input$cutoff)/length(genData())*100,1)))
     #output$overlayO <- renderText(overlay2)
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
