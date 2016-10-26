@@ -25,7 +25,7 @@ ui <- fluidPage(
              #p("Reactive buttons to change between Example 1 and Example 2"),
              #p("Click on each button below to populate the respective example."),
              actionButton("eg1","Example 1"),
-             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distribution.",
+             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.",
              hr(),
              #h4("Example"),
              h4(textOutput("exampleTitle")),
@@ -74,7 +74,7 @@ ui <- fluidPage(
              )
              ),
     tabPanel(title = "Simulation",
-             h3("Simulate the distributions using the parameters provided below"),
+             h3("Simulate the distributions using the parameters"), # provided below"),
              #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              
@@ -166,23 +166,26 @@ ui <- fluidPage(
              #br(),
              fluidRow(column(6,
                              h4("Before you start"),
-                             p("Before using your own data to run the model, it might be worth checking out how
-                               your data input should be like, since", strong("the model will not run if the data is not in the 
-                                                                              correct format."), "The data input has to be a ", strong("csv"), "file with a", strong("single
-                                                                                                                                                                     column of half-life clearance data."),"There must be",strong("no column names or no row names.")),  
+                             p("Your data input must:", 
+                               tags$li("be in a csv file"),
+                               tags$li("have a single column of half-life clearance data"),
+                               tags$li("have no column names and row names"),
+                               "The model will not run otherwise."
+                               ),  
                              #br(),
                              # "You can download our simulated default dataset and have a look.",
                              # "The following is the result of the model run using the default simulated dataset. 
                              #            You can download the default dataset here:",
-                             downloadButton("defaultData", "Download default/template dataset"),
-                             p("You can use our simulated dataset as a template to copy and paste (overwrite) the values of your data.
-                               When saving, just keep the", strong("csv"), "format. Your uploaded data is used only for running the model, 
-                               and it will not be stored.")
+                             "Download our simulated dataset",
+                             a(href="https://app.box.com/s/8yv23ttdfuv3qfenig3tq01xl6dkshk1", "here."),
+                             "It can serve as a template where you can simply replace the values with your data, 
+                             and save as a csv file of the correct format."
+                             #downloadButton("defaultData", "here"), #obsolete on 20161026
                              ),
                       column(5,
                              h4("Using your data"),
                              wellPanel(
-                               fileInput(inputId = "file", label = "Your input file: ", accept = c(".csv"))
+                               fileInput(inputId = "file", label ="Your input file*:", accept = c(".csv"))
                              ),
                              #something about the default dataset
                              verbatimTextOutput("aboutDefault") #textOutput("aboutDefault")
@@ -220,7 +223,9 @@ ui <- fluidPage(
              ),
              h4("Downloads"),
              downloadButton('downloadhistoplot2',"Download the histogram"),
-             downloadButton('resultData',"Download the results in a table")
+             downloadButton('resultData',"Download the results in a table"),
+             hr(),
+             p("* The uploaded data is used only for running the model, and it will not be stored.")
     ),
     tabPanel(title="Limitations & Related Resources",
              h3("Identify  artemisinin resistance from parasite clearance half-life data"),
@@ -326,7 +331,7 @@ server <- function(input, output, session) {
   
   
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "**Processing status** \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
+  rvAboutDataset <- reactiveValues(text = "##Processing status## \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
 # The output will change once you've uploaded your data and the model approximation is completed. 
 #                                    Note: After your data input if you are still seeing this message, 
 #                                    the model is running in the background. It'll take sometime depending on the size of your data.")
@@ -633,12 +638,14 @@ server <- function(input, output, session) {
       histoplot2fun()
       dev.off()
     })
-  output$defaultData <- downloadHandler(
-    filename = function(){paste('hl_data_', Sys.Date(),'.csv',sep='')},
-    content = function(file){
-      write.table(mixdatRHolder$Holder, file, col.names = FALSE, row.names = FALSE)
-    }
-  )
+  
+  ##this is obsolete on 20161026
+  # output$defaultData <- downloadHandler(
+  #   filename = function(){paste('hl_data_', Sys.Date(),'.csv',sep='')},
+  #   content = function(file){
+  #     write.table(mixdatRHolder$Holder, file, col.names = FALSE, row.names = FALSE)
+  #   }
+  # )
   output$resultData <- downloadHandler(
     filename = function(){paste('result_', Sys.Date(),'.csv',sep='')},
     content = function(file){
