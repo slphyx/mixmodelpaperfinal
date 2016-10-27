@@ -232,7 +232,7 @@ ui <- fluidPage(
              p("* The uploaded data is used only for running the model, and it will not be stored.")
     ),
     tabPanel(title="Limitations & Related Resources",
-             h3("Identify  artemisinin resistance from parasite clearance half-life data"),
+             #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              h3("Limitations"),
              h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
@@ -246,11 +246,22 @@ ui <- fluidPage(
              tags$ul(
                tags$li("The original paper by White et al. (2015) on which this web application is based:", a(href="http://bit.ly/White-et-al-2015","Defining the In Vivo Phenotype of Artemisinin-Resistant Falciparum Malaria: A Modelling Approach")),
                tags$li("Exploration of the model's limitation:", a(href="http://bit.ly/White-2015-S1", "Supporting information 1, White et al. (2015)" )),
-               tags$li(a(href="http://bit.ly/White-2015-code","Source codes of the original model by White et al. (2015)")),
+               tags$li(a(href="http://bit.ly/White-2015-code","Source codes of the original model"),"by White et al. (2015)"),
                tags$li(a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/","WHO updates on artemisinin resistance")),
-               tags$li(a(href="http://bit.ly/2d4hV7V","Parasite Clearance Estimator (PCE)")),
+               tags$li(a(href="http://bit.ly/2d4hV7V","Parasite Clearance Estimator"),"(PCE)"),
                tags$li("Published paper for this web application: submitted"),
-               tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes for this web application"))
+               tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes"),"for this web application")
+             ),
+             hr(),
+             h3("Opensource softwares used for development"),
+             tags$ul(
+               tags$li(a(href="https://www.r-project.org/","R programming language")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/shiny/index.html","shiny: Web Application Framework for R")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/mixtools/index.html","mixtools")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/MASS/index.html","MASS")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/pROC/index.html","pROC")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/shinydashboard/index.html","shinydashboard")),
+               tags$li(a(href="https://cran.r-project.org/web/packages/shinythemes/index.html","shinythemes"))
              )
   )
 )
