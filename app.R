@@ -25,7 +25,7 @@ ui <- fluidPage(
              #p("Reactive buttons to change between Example 1 and Example 2"),
              #p("Click on each button below to populate the respective example."),
              actionButton("eg1","Example 1"),
-             actionButton("eg2","Example 2"), "You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.",
+             actionButton("eg2","Example 2"), 
              hr(),
              #h4("Example"),
              h4(textOutput("exampleTitle")),
@@ -71,7 +71,8 @@ ui <- fluidPage(
                       plotOutput(outputId = "ROC_intro")
                )
                
-             )
+             ),
+             p("You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.")
              ),
     tabPanel(title = "Simulation",
              h3("Simulate the distributions using the parameters"), # provided below"),
@@ -111,6 +112,7 @@ ui <- fluidPage(
                         )
                  )),
                  column(4,
+                        #strong("Other parameters"),
                         fluidRow(
                         column(5,
                                numericInput(inputId = "nn",
@@ -141,6 +143,7 @@ ui <- fluidPage(
                         ))
                  )
                ),
+             hr(),
              h4("Results"),
              fluidRow(
                column(5,
@@ -151,8 +154,7 @@ ui <- fluidPage(
                       plotOutput(outputId = "ROC")
                )
                
-             ),
-             br() #,
+             ) #,
              #p("This is the end of part 1.")
              
              ###test####
@@ -169,9 +171,9 @@ ui <- fluidPage(
                              p("Your data input must:", 
                                tags$li("be in a csv file"),
                                tags$li("have a single column of half-life clearance data"),
-                               tags$li("have no column names and row names"),
-                               "The model will not run otherwise."
-                               ),  
+                               tags$li("have no column names and row names")
+                               ),
+                             p("The model will not run otherwise."),
                              #br(),
                              # "You can download our simulated default dataset and have a look.",
                              # "The following is the result of the model run using the default simulated dataset. 
@@ -179,7 +181,7 @@ ui <- fluidPage(
                              "Download our simulated dataset",
                              a(href="https://app.box.com/s/8yv23ttdfuv3qfenig3tq01xl6dkshk1", "here."),
                              "It can serve as a template where you can simply replace the values with your data, 
-                             and save as a csv file of the correct format."
+                             and save as a csv file to get the correct format to run this model."
                              #downloadButton("defaultData", "here"), #obsolete on 20161026
                              ),
                       column(5,
@@ -188,7 +190,8 @@ ui <- fluidPage(
                                fileInput(inputId = "file", label ="Your input file*:", accept = c(".csv"))
                              ),
                              #something about the default dataset
-                             verbatimTextOutput("aboutDefault") #textOutput("aboutDefault")
+                             #verbatimTextOutput("aboutDefault") #textOutput("aboutDefault") #replaced by the following "text_imported_dataset" function
+                             verbatimTextOutput("text_imported_dataset")
                              )
                       ),
              hr(),
@@ -204,16 +207,16 @@ ui <- fluidPage(
                )
                
              ),
-             wellPanel(
                fluidRow(
-                 column(4,
-                        checkboxInput(inputId = "showcutoff2",
-                                      label = "Show cutoff line in the histogram",
-                                      value = FALSE
-                        ),
+                 column(5,
+                        wellPanel(
                         sliderInput(inputId = "cutoff2",
                                     label = "Cut-off half-life value",
                                     value = 5, min = 0, max = 10, step=.5
+                        ),
+                        checkboxInput(inputId = "showcutoff2",
+                                      label = "Show cut-off line in the histogram",
+                                      value = FALSE
                         )
                  )#,
                  # column(4,
@@ -221,6 +224,7 @@ ui <- fluidPage(
                  # )
                )
              ),
+             hr(),
              h4("Downloads"),
              downloadButton('downloadhistoplot2',"Download the histogram"),
              downloadButton('resultData',"Download the results in a table"),
@@ -237,7 +241,7 @@ ui <- fluidPage(
                      tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations. Eg., For a sample size of 1,000, the model will correctly predict 96%, 91%, 70%, 46% and 21% for the input mixture distributions of 1, 2, 3, 4 and 5 components respectively."),
                      tags$li("While using this web application, when the window of the browser is resized, the histogram will disappear. They will reappear when you change one of the parameters given for the histogram.")
              ),
-             br(),
+             hr(),
              h3("Related Resources"),
              tags$ul(
                tags$li("The original paper by White et al. (2015) on which this web application is based:", a(href="http://bit.ly/White-et-al-2015","Defining the In Vivo Phenotype of Artemisinin-Resistant Falciparum Malaria: A Modelling Approach")),
@@ -338,13 +342,23 @@ server <- function(input, output, session) {
     return(ncol(my_data)==1 & is.numeric(my_data[, 1]))
   })
   
+  output$text_imported_dataset <- renderText({
+    inFile <- input$file
+    if (is.null(inFile)) return("##Processing status## \nThis text will fade when \nthe model is running.")
+    
+    my_file <- read.csv(inFile$datapath)
+    if (test_import()) return("*************************************\n* Model approximation is completed! *\n*************************************\nSee below for the results!")
+    if (!test_import()) return('Please check whether the import \nformat is correct.')
+  })
+  
+  #following 5 lines have been replaced by the function above, 20161027
   #something about the default dataset
-  rvAboutDataset <- reactiveValues(text = "##Processing status## \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
+  #rvAboutDataset <- reactiveValues(text = "##Processing status## \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
 # The output will change once you've uploaded your data and the model approximation is completed. 
 #                                    Note: After your data input if you are still seeing this message, 
 #                                    the model is running in the background. It'll take sometime depending on the size of your data.")
-  output$aboutDefault <- renderText(rvAboutDataset$text)
-  observeEvent(input$file,{rvAboutDataset$text="*************************************\n* Model approximation is completed! *\n*************************************\nSee below for the results!"})
+  #output$aboutDefault <- renderText(rvAboutDataset$text)
+  #observeEvent(input$file,{rvAboutDataset$text="*************************************\n* Model approximation is completed! *\n*************************************\nSee below for the results!"})
   
   rvExplain <- reactiveValues(text="")
   output$explain <- renderText(rvExplain$text)
