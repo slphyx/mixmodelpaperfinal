@@ -92,7 +92,7 @@ ui <- fluidPage(
                         ),
                         sliderInput(inputId = "sensd",
                                     label = "SD (hours)",
-                                    value = 1.26, min = 1, max = 2.1
+                                    value = 1.22, min = 1, max = 2.1
                         )
                  )),
                  column(4,
@@ -108,7 +108,7 @@ ui <- fluidPage(
                         ),
                         sliderInput(inputId = "prop_resist",
                                     label = "% of resistant population",
-                                    value = 10, min = 0, max = 100
+                                    value = 11, min = 0, max = 100
                         )
                  )),
                  column(4,
