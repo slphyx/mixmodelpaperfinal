@@ -329,6 +329,14 @@ server <- function(input, output, session) {
     updateTabItems(session, "panels", newvalue)
   })
   
+  # test_import() is TRUE only if the imported file has the correct format
+  test_import <- reactive({
+    inFile <- input$file
+    if(is.null(inFile)) return(FALSE)
+    
+    my_data <- read.csv(inFile$datapath)
+    return(ncol(my_data)==1 & is.numeric(my_data[, 1]))
+  })
   
   #something about the default dataset
   rvAboutDataset <- reactiveValues(text = "##Processing status## \nThe following is the output of the model \nusing the default dataset. This text will \nfade when the model is running.")
@@ -463,6 +471,9 @@ server <- function(input, output, session) {
   })
   
   MixModel <- reactive({
+    # stop if the import process has not been sucessfullt completed
+    if (!test_import()) return(NULL)
+    
     mixdat <- mixdatR()
     
     N<-ncol(mixdat)
@@ -605,6 +616,7 @@ server <- function(input, output, session) {
   
   
   output$histoplot2 <- renderPlot({
+    if (!test_import()) return(NULL)
     histoplot2R()
   })
   
@@ -691,6 +703,9 @@ server <- function(input, output, session) {
     cbind(genDatamm(),c(rep(0,length(sen_popRmm())),rep(1,length(res_popRmm()))))
   })
   output$ROC2 <- renderPlot({
+    # stop if the import process has not been sucessfullt completed
+    if (!test_import()) return(NULL)
+    
     if(length(MixModelResult$Holder$muR)==2)
     { #plot ROC only if the number of distributions is <=2!
       rvExplain$text <- aboutDistribution() #geometric_means_and_proportions() #"rvExplain$text for 2 distributions" #renderText({      })
