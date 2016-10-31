@@ -2,6 +2,8 @@ name: id_artemisinin_resistance
 account: malaria
 server: shinyapps.io
 appId: 130758
-bundleId: 598404
+bundleId: 601094
 url: https://malaria.shinyapps.io/id_artemisinin_resistance/
-when: 1477578810.98576
+when: 1477903859.2711
+asMultiple: FALSE
+asStatic: FALSE

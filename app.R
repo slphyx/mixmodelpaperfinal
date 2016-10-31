@@ -6,12 +6,12 @@ library(shinythemes)
 library(shinydashboard)
 
 ui <- fluidPage(
-  theme = shinytheme("journal"), #journal readable
+  theme = shinytheme("readable"), #journal readable
   #h2("Identify  artemisinin resistance from parasite clearance half-life data"), #this has been put inside the tabs
   
   tabsetPanel(
     id="panels",
-    tabPanel(title = "Introduction",
+    tabPanel(title = strong("Introduction"),
              h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/", 
@@ -74,7 +74,7 @@ ui <- fluidPage(
              ),
              p("You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.")
              ),
-    tabPanel(title = "Simulation",
+    tabPanel(title = strong("Simulation"),
              h3("Simulate the distributions using the parameters"), # provided below"),
              #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
@@ -160,7 +160,7 @@ ui <- fluidPage(
              ###test####
              #p(textOutput("genDataOut"))
     ),
-    tabPanel(title = "Use your data",
+    tabPanel(title = strong("Use your data"),
              h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              ############################
              ###Portions from MixModel###
@@ -231,7 +231,7 @@ ui <- fluidPage(
              hr(),
              p("* The uploaded data is used only for running the model, and it will not be stored.")
     ),
-    tabPanel(title="Limitations & Related Resources",
+    tabPanel(title = strong("Limitations & Related Resources"),
              #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              h3("Limitations"),
@@ -463,7 +463,7 @@ server <- function(input, output, session) {
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
     points((1-FPR),TPR, col="red", pch=19)
-    text(.5,.5,overlay, col="red")
+    text(.5,.5,overlay, col="black")
   })
   
   #for the simulation
@@ -486,7 +486,7 @@ server <- function(input, output, session) {
     
     roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
     points((1-FPR),TPR, col="red", pch=19)
-    text(.5,.5,overlay, col="red")
+    text(.5,.5,overlay, col="black")
   })
   
   #######################################################################
@@ -749,7 +749,7 @@ server <- function(input, output, session) {
       
       roc(popDF[,2], popDF[,1],  partial.auc.correct=TRUE, partial.auc.focus="sens",ci=TRUE, boot.n=100, ci.alpha=0.9, stratified=FALSE, plot=TRUE, auc.polygon=TRUE, max.auc.polygon=TRUE, grid=TRUE, show.thres=TRUE, main="Receiver Operating Characteristic (ROC) Curve")
       points((1-FPR),TPR, col="red", pch=19)
-      text(.5,.5,overlay, col="red")
+      text(.5,.5,overlay, col="black")
     }
     else if(length(MixModelResult$Holder$muR)==1){
       rvExplain$text="The model predicts a single distribution!"
