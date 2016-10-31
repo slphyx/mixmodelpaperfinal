@@ -6,7 +6,7 @@ library(shinythemes)
 library(shinydashboard)
 
 ui <- fluidPage(
-  theme = shinytheme("journal"),
+  theme = shinytheme("journal"), #journal readable
   #h2("Identify  artemisinin resistance from parasite clearance half-life data"), #this has been put inside the tabs
   
   tabsetPanel(
@@ -239,6 +239,7 @@ ui <- fluidPage(
              tags$ul(tags$li("The clearance half-lives of infections with a particular sensitivity are assumed to follow unimodal distributions of log-normal type."),
                      tags$li("The maximum number of subpopulations the model can detect is 5."),
                      tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations. Eg., For a sample size of 1,000, the model will correctly predict 96%, 91%, 70%, 46% and 21% for the input mixture distributions of 1, 2, 3, 4 and 5 components respectively."),
+                     tags$li("The speed at which the figures on the result section appear (i.e., the responsiveness of the web-page) will depend on the internet connection speed."),
                      tags$li("While using this web application, when the window of the browser is resized, the histogram will disappear. They will reappear when you change one of the parameters given for the histogram.")
              ),
              hr(),
