@@ -15,11 +15,11 @@ ui <- fluidPage(
              h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              p("In the World Health Organization's ", a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/", 
-                                                        "Update on artemisinin and ACT resistance"),
-               "the cut-off value of greater than 10% of patients with a half-life of the parasite clearance slope more than 5 hours after treatment with ACT or 
+                                                        "Update on artemisinin and ACT resistance,"),
+               "a cut-off value of greater than 10% of patients with a half-life of parasite clearance slope more than 5 hours after treatment with ACT or 
                artesunate monotherapy is used as one of the definitions of \"suspected endemic artemisinin resistance\"."),
-             p("In the following hypothetical examples, the cut-off value will either miss or overestimate the artemisinin resistance.",
-               "Assumptions provided in", actionLink("link_to_LIMITpage", "Limitations"), "tab are applied here.",
+             p("In the following hypothetical examples, the cut-off value will either miss or overestimate artemisinin resistance.",
+               "Assumptions provided in the", actionLink("link_to_LIMITpage", "Limitations"), "tab are applied here.",
                strong("Click"), "on each button below to populate the respective example."
              ),
              #p("Reactive buttons to change between Example 1 and Example 2"),
@@ -31,27 +31,27 @@ ui <- fluidPage(
              h4(textOutput("exampleTitle")),
              p("In a sample of ",
                strong(textOutput("nnO",inline=T)),
-               "individuals, when the sensitive population has a geomatric half-life mean of ", 
+               "individuals, when the sensitive population has a geometric half-life mean of ", 
                strong(textOutput("senmuO", inline=T)), 
-               "hours with the standard deviation of ",
+               "hours with a standard deviation of ",
                strong(textOutput("sensdO",inline=T)),
-               "hours and the resistant population has a geomatric half-life mean of ",
+               "hours, and the resistant population has a geometric half-life mean of ",
                strong(textOutput("resmuO",inline=T)),
-               "hours with the standard deviation of ",
+               "hours with a standard deviation of ",
                strong(textOutput("ressdO",inline=T)),
-               "hours then the distribution will look like the following plot. If the percentage of 
-               resistant population is",
-               strong(textOutput("prop_resistO",inline=T)),
+               "hours, then the distribution will look like the following plot. If the percentage of 
+               the resistant population is",
+               strong(textOutput("prop_resistO",inline=T),"%"),
                
-               ", the cutoff value of ",
+               ", the cut-off value of ",
                strong(textOutput("cutoffO",inline=T)),
                "hours will detect ",
                strong(textOutput("capturedO", inline=T)),
                "percent of the population as resistant.", 
-               "The use of cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
+               "The use of a cut-off value can be augmented by additional information.",#"The cut-off value then has to be adjusted.",
                br(),
                p("Here, we're providing a tool based on the model developed by", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),
-                 "to anlayze the parasite clearance half-life data as 
+                 "to analyze the parasite clearance half-life data as 
                  distributions of artemisinin-sensitive and artemisinin-resistant populations. 
                  Please go to the", actionLink("link_to_MMpage", "Use your data"), "tab to use it.")
                #HTML("<a href='#histoplot1'>next page</a>."),
@@ -72,7 +72,7 @@ ui <- fluidPage(
                )
                
              ),
-             p("You can also use the parameters in", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.")
+             p("You can also use the parameters in the", actionLink("link_to_SIMpage", "Simulation"), "tab to simulate your own distributions.")
              ),
     tabPanel(title = strong("Simulation"),
              h3("Simulate the distributions using the parameters"), # provided below"),
@@ -171,7 +171,7 @@ ui <- fluidPage(
                              p("Your data input must:", 
                                tags$li("be in a csv file"),
                                tags$li("have a single column of half-life clearance data"),
-                               tags$li("have no column names and row names")
+                               tags$li("have no column names or row names")
                                ),
                              p("The model will not run otherwise."),
                              #br(),
@@ -229,18 +229,18 @@ ui <- fluidPage(
              downloadButton('downloadhistoplot2',"Download the histogram"),
              downloadButton('resultData',"Download the results in a table"),
              hr(),
-             p("* The uploaded data is used only for running the model, and it will not be stored.")
+             p("* The uploaded data is only used for running the model, and it will not be stored.")
     ),
     tabPanel(title = strong("Limitations & Related Resources"),
              #h3("Identify  artemisinin resistance from parasite clearance half-life data"),
              #br(),
              h3("Limitations"),
-             h4("All the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
+             h4("All of the assumptions and limitations from the model of", a(href="http://bit.ly/White-et-al-2015","White et al.(2015)"),"are applied here."),
              tags$ul(tags$li("The clearance half-lives of infections with a particular sensitivity are assumed to follow unimodal distributions of log-normal type."),
                      tags$li("The maximum number of subpopulations the model can detect is 5."),
-                     tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations. Eg., For a sample size of 1,000, the model will correctly predict 96%, 91%, 70%, 46% and 21% for the input mixture distributions of 1, 2, 3, 4 and 5 components respectively."),
+                     tags$li("As described in the", a(href="http://bit.ly/White-2015-S1","Supporting information 1 of White et al. (2015)"),", the model's ability to differentiate between subpopulations depends on means and standard deviations of the component distributions, sample size, and the number of subpopulations. For instance, from a sample size of 50, the model will be able to differentiate between subpopulations of geometric mean half-lives with a difference of 3 or more hours. From a sample size of 1000, the model will be able to differentiate subpopulations whose geometric mean half-lives differ by only 0.5 hours. The model's prediction will also decrease with the increase in the true number of subpopulations, eg., for a sample size of 1,000, the model will correctly predict 96%, 91%, 70%, 46% and 21% for the input mixture distributions of 1, 2, 3, 4 and 5 components respectively."),
                      tags$li("The speed at which the figures on the result section appear (i.e., the responsiveness of the web-page) will depend on the internet connection speed."),
-                     tags$li("While using this web application, when the window of the browser is resized, the histogram will disappear. They will reappear when you change one of the parameters given for the histogram.")
+                     tags$li("While using this web application, if the window of the browser is resized, the histogram will disappear. It will reappear when you change one of the parameters given for the histogram.")
              ),
              hr(),
              h3("Related Resources"),
@@ -254,7 +254,7 @@ ui <- fluidPage(
                tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes"),"for this web application")
              ),
              hr(),
-             h3("Opensource softwares used for development"),
+             h3("Opensource software used for development"),
              tags$ul(
                tags$li(a(href="https://www.r-project.org/","R programming language")),
                tags$li(a(href="https://cran.r-project.org/web/packages/shiny/index.html","shiny: Web Application Framework for R")),
