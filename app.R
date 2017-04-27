@@ -247,11 +247,11 @@ ui <- fluidPage(
              tags$ul(
                tags$li("The original paper by White et al. (2015) on which this web application is based:", a(href="http://bit.ly/White-et-al-2015","Defining the In Vivo Phenotype of Artemisinin-Resistant Falciparum Malaria: A Modelling Approach")),
                tags$li("Exploration of the model's limitation:", a(href="http://bit.ly/White-2015-S1", "Supporting information 1, White et al. (2015)" )),
-               tags$li(a(href="http://bit.ly/White-2015-code","Source codes of the original model"),"by White et al. (2015)"),
+               tags$li(a(href="http://bit.ly/White-2015-code","Source code of the original model"),"by White et al. (2015)"),
                tags$li(a(href="http://www.who.int/malaria/publications/atoz/update-artemisinin-resistance-october2016/en/","WHO updates on artemisinin resistance")),
                tags$li(a(href="http://bit.ly/2d4hV7V","Parasite Clearance Estimator"),"(PCE)"),
                tags$li("Published paper for this web application: submitted"),
-               tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source codes"),"for this web application")
+               tags$li(a(href="http://bit.ly/White-2015-shiny-code","Source code"),"for this web application")
              ),
              hr(),
              h3("Opensource software used for development"),
@@ -263,6 +263,10 @@ ui <- fluidPage(
                tags$li(a(href="https://cran.r-project.org/web/packages/pROC/index.html","pROC")),
                tags$li(a(href="https://cran.r-project.org/web/packages/shinydashboard/index.html","shinydashboard")),
                tags$li(a(href="https://cran.r-project.org/web/packages/shinythemes/index.html","shinythemes"))
+             ),
+             h3("Contact for further information"),
+             tags$ul(
+               tags$li(a(href="http://www.tropmedres.ac/sai-thein-than-tun","Sai Thein Than Tun, "), a(href="mailto:sai@tropmedres.ac","sai@tropmedres.ac"))
              )
   )
 )
