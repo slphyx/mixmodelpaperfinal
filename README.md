@@ -10,6 +10,6 @@ Tun STT<sup>1</sup>, Lubell Y<sup>1,2</sup>, Dondorp AM<sup>1,2</sup>, Fieldman 
 
 ## Abstract
 
-The emergence of artemisinin-resistant Plasmodium falciparum malaria is a major threat to malaria elimination. New tools for supporting the surveillance of artemisinin resistance are critical for current and future malaria control and elimination strategies. We have developed an open-access, user-friendly, web-based tool to analyse parasite clearance half-life data of P. falciparum infected patients after treatment with artemisinin derivatives, so that resistance to artemisinin can be identified. The tool can be accessed at [bit.ly/id_artemisinin_resistance](bit.ly/id_artemisinin_resistance).
+The emergence of artemisinin-resistant Plasmodium falciparum malaria is a major threat to malaria elimination. New tools for supporting the surveillance of artemisinin resistance are critical for current and future malaria control and elimination strategies. We have developed an open-access, user-friendly, web-based tool to analyse parasite clearance half-life data of P. falciparum infected patients after treatment with artemisinin derivatives, so that resistance to artemisinin can be identified. The tool can be accessed at [bit.ly/id_artemisinin_resistance](https://malaria.shinyapps.io/id_artemisinin_resistance/).
 
 https://doi.org/10.1371/journal.pone.0177840
